@@ -71,15 +71,15 @@ export default function HomePage() {
 
   // Quick action shortcuts for all personas
   const quickActions = [
-    { label: "Refer Now", icon: "ðŸ’¸", href: "/refer" },
-    { label: "Streak", icon: "ðŸ”¥", href: "/streak" },
-    { label: "Leaderboard", icon: "ðŸ†", href: "/leaderboard" },
-    { label: "Earnings", icon: "ðŸ’°", href: "/earnings" },
-    { label: "Lucky Draw", icon: "ðŸŽ°", href: "/lucky-draw" },
-    { label: "My Chain", icon: "ðŸ”—", href: "/chain" },
+    { label: "Refer Now", icon: "💸", href: "/refer" },
+    { label: "Streak", icon: "🔥", href: "/streak" },
+    { label: "Leaderboard", icon: "🏆", href: "/leaderboard" },
+    { label: "Earnings", icon: "💰", href: "/earnings" },
+    { label: "Lucky Draw", icon: "🎰", href: "/lucky-draw" },
+    { label: "My Chain", icon: "🔗", href: "/chain" },
   ];
 
-  // â”€â”€ GUARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── GUARD ──────────────────────────────────────────────────────────
   if (persona === "GUARD") {
     return (
       <Layout>
@@ -88,7 +88,7 @@ export default function HomePage() {
           {/* Daily Quote */}
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             className="bg-orange-500/10 border border-orange-500/20 rounded-2xl px-4 py-3 flex items-start gap-3">
-            <span className="text-xl shrink-0">ðŸ’¬</span>
+            <span className="text-xl shrink-0">💬</span>
             <p className="text-orange-300 font-bold text-sm leading-snug">{quote}</p>
           </motion.div>
 
@@ -102,7 +102,7 @@ export default function HomePage() {
               <Wallet className="w-32 h-32 text-green-500" />
             </div>
             <p className="text-zinc-400 font-bold mb-1">TOTAL KAMAI</p>
-            <h2 className="text-5xl font-black text-green-400 tracking-tighter mb-4">â‚¹{dashboard.referrer.totalEarned}</h2>
+            <h2 className="text-5xl font-black text-green-400 tracking-tighter mb-4">₹{dashboard.referrer.totalEarned}</h2>
             <div className="flex items-center gap-3 bg-zinc-900/50 p-4 rounded-xl border border-zinc-700/50">
               <div className="bg-orange-500 text-white w-10 h-10 flex items-center justify-center rounded-lg font-black text-xl">
                 {dashboard.rank}
@@ -130,9 +130,9 @@ export default function HomePage() {
             onClick={() => setLocation("/refer")}
             className="w-full bg-orange-500 hover:bg-orange-600 active:scale-95 transition-all text-white rounded-3xl p-6 flex flex-col items-center justify-center gap-3 shadow-[0_10px_0_rgba(194,65,12,1)]"
           >
-            <span className="text-4xl">ðŸ’°</span>
+            <span className="text-4xl">💰</span>
             <span className="text-2xl font-black uppercase tracking-wide">Naya Refer Karo</span>
-            <span className="text-orange-200 text-sm">PG Â· Flat Â· Ghar Â· Sab kuch</span>
+            <span className="text-orange-200 text-sm">PG · Flat · Ghar · Sab kuch</span>
           </button>
 
           {/* XP Level */}
@@ -159,7 +159,7 @@ export default function HomePage() {
     );
   }
 
-  // â”€â”€ STUDENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── STUDENT ────────────────────────────────────────────────────────
   if (persona === "STUDENT") {
     return (
       <Layout>
@@ -168,14 +168,14 @@ export default function HomePage() {
           {/* Daily Quote */}
           <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
             className="bg-orange-50 border border-orange-100 rounded-2xl px-4 py-3 flex items-start gap-3">
-            <span className="text-xl shrink-0">âœ¨</span>
+            <span className="text-xl shrink-0">✨</span>
             <p className="text-orange-800 font-semibold text-sm leading-snug italic">"{quote}"</p>
           </motion.div>
 
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold font-display text-slate-800">Hi, {dashboard.referrer.name.split(' ')[0]} ðŸ‘‹</h2>
+              <h2 className="text-2xl font-bold font-display text-slate-800">Hi, {dashboard.referrer.name.split(' ')[0]} 👋</h2>
               <p className="text-orange-600 font-medium">Help a friend find a home, earn together!</p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 border border-orange-200 shadow-sm">
@@ -193,7 +193,7 @@ export default function HomePage() {
             <div className="grid grid-cols-2 gap-4 relative z-10">
               <div>
                 <p className="text-sm font-medium text-slate-500 mb-1">Your Wallet</p>
-                <p className="text-4xl font-black text-slate-800 tracking-tight">â‚¹{dashboard.referrer.totalEarned}</p>
+                <p className="text-4xl font-black text-slate-800 tracking-tight">₹{dashboard.referrer.totalEarned}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium text-slate-500 mb-1">Campus Rank</p>
@@ -241,7 +241,7 @@ export default function HomePage() {
               </div>
               <div className="text-left">
                 <p className="font-bold text-lg leading-tight">Refer a Friend</p>
-                <p className="text-white/70 text-sm">PGs, Flats & Houses Â· Earn â‚¹500</p>
+                <p className="text-white/70 text-sm">PGs, Flats & Houses · Earn ₹500</p>
               </div>
             </div>
             <ChevronRight className="w-6 h-6 text-white/50" />
@@ -262,7 +262,7 @@ export default function HomePage() {
                       <p className="text-sm font-medium text-slate-800">{activity.description}</p>
                       <p className="text-xs text-slate-500">
                         {new Date(activity.createdAt).toLocaleDateString()}
-                        {activity.amount && <span className="ml-2 text-green-600 font-medium">+â‚¹{activity.amount}</span>}
+                        {activity.amount && <span className="ml-2 text-green-600 font-medium">+₹{activity.amount}</span>}
                         {activity.xpGained && <span className="ml-2 text-orange-500 font-medium">+{activity.xpGained} XP</span>}
                       </p>
                     </div>
@@ -278,7 +278,7 @@ export default function HomePage() {
     );
   }
 
-  // â”€â”€ EARNER (default) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── EARNER (default) ───────────────────────────────────────────────
   return (
     <Layout>
       <div className="p-6 space-y-6">
@@ -305,12 +305,12 @@ export default function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Paid</p>
-            <p className="text-2xl font-black text-slate-900">â‚¹{dashboard.referrer.paidEarnings}</p>
+            <p className="text-2xl font-black text-slate-900">₹{dashboard.referrer.paidEarnings}</p>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
             <div className="absolute right-0 top-0 bottom-0 w-1 bg-orange-500" />
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Pending</p>
-            <p className="text-2xl font-black text-orange-600">â‚¹{dashboard.referrer.pendingEarnings}</p>
+            <p className="text-2xl font-black text-orange-600">₹{dashboard.referrer.pendingEarnings}</p>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Conversion</p>
@@ -346,7 +346,7 @@ export default function HomePage() {
                 <Target className="w-4 h-4 text-orange-500" />
                 Pipeline
               </h3>
-              <button onClick={() => setLocation("/activity")} className="text-xs text-orange-500 font-bold">View All â†’</button>
+              <button onClick={() => setLocation("/activity")} className="text-xs text-orange-500 font-bold">View All →</button>
             </div>
             <div className="space-y-4">
               {[
@@ -373,7 +373,7 @@ export default function HomePage() {
                 <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
                 {levelName}
               </h3>
-              <p className="text-sm text-slate-500 mb-6">Rank #{dashboard.rank} Â· Gharpayy Homes</p>
+              <p className="text-sm text-slate-500 mb-6">Rank #{dashboard.rank} · Gharpayy Homes</p>
               <div className="mb-2 flex justify-between items-end">
                 <span className="text-3xl font-black text-slate-900">{dashboard.referrer.xp} <span className="text-base text-slate-500 font-medium">XP</span></span>
                 <span className="text-sm font-medium text-orange-600">{dashboard.nextLevelXp} XP required</span>
@@ -391,7 +391,7 @@ export default function HomePage() {
               onClick={() => setLocation("/refer")}
               className="mt-6 w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold transition-colors"
             >
-              Add New Lead â†’
+              Add New Lead →
             </button>
           </div>
         </div>

@@ -20,7 +20,7 @@ export default function EarnHubPage() {
       <section className="relative overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_top,rgba(251,146,60,0.35),transparent_60%)]" />
         <div className="relative max-w-6xl mx-auto px-4 md:px-8 pt-8 md:pt-14 pb-10">
-          <Link href="/home" className="text-xs text-slate-400 hover:text-white">â† Back</Link>
+          <Link href="/home" className="text-xs text-slate-400 hover:text-white">← Back</Link>
           <div className="mt-3 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] text-orange-400">
             <Sparkles className="w-3 h-3" /> Make money with Gharpayy
           </div>
@@ -33,10 +33,10 @@ export default function EarnHubPage() {
           </p>
 
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-2.5">
-            <Stat icon={Wallet} label="Top earner this month" value={`â‚¹${Math.round(64000).toLocaleString()}`} tone="text-emerald-300" />
-            <Stat icon={TrendingUp} label="Combined potential" value={`â‚¹${sumOfPotential.toLocaleString()}/mo`} tone="text-orange-300" />
+            <Stat icon={Wallet} label="Top earner this month" value={`₹${Math.round(64000).toLocaleString()}`} tone="text-emerald-300" />
+            <Stat icon={TrendingUp} label="Combined potential" value={`₹${sumOfPotential.toLocaleString()}/mo`} tone="text-orange-300" />
             <Stat icon={Trophy} label="Active earners" value="218 this week" tone="text-blue-300" />
-            <Stat icon={Flame} label="Paid in last 7 days" value="â‚¹4.7L" tone="text-rose-300" />
+            <Stat icon={Flame} label="Paid in last 7 days" value="₹4.7L" tone="text-rose-300" />
           </div>
         </div>
       </section>
@@ -49,7 +49,7 @@ export default function EarnHubPage() {
               <div className="text-[10px] uppercase tracking-widest text-orange-400 font-black">The 10 ways</div>
               <h2 className="text-xl md:text-2xl font-black">Pick one. Start today.</h2>
             </div>
-            <div className="text-[11px] text-slate-500 hidden md:block">Each card â†’ playbook â†’ WhatsApp link.</div>
+            <div className="text-[11px] text-slate-500 hidden md:block">Each card → playbook → WhatsApp link.</div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -68,10 +68,10 @@ export default function EarnHubPage() {
 
                   <div className="mt-3 flex items-center gap-1.5 flex-wrap">
                     <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-black border ${DIFF_TONE[r.difficulty]}`}>{r.difficulty}</span>
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-slate-800 text-slate-300">â± {r.timePerWeek}</span>
+                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-slate-800 text-slate-300">⏱ {r.timePerWeek}</span>
                     {r.bestZone && (
                       <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-orange-500/15 text-orange-300 border border-orange-500/30">
-                        ðŸ“ {r.bestZone}
+                        📍 {r.bestZone}
                       </span>
                     )}
                   </div>
@@ -79,12 +79,12 @@ export default function EarnHubPage() {
                   <div className="mt-3 pt-3 border-t border-slate-800 flex items-end justify-between">
                     <div>
                       <div className="text-[9px] uppercase tracking-widest text-slate-500">Realistic / month</div>
-                      <div className="text-xl font-black text-orange-400 leading-none mt-0.5">â‚¹{monthly.toLocaleString()}</div>
+                      <div className="text-xl font-black text-orange-400 leading-none mt-0.5">₹{monthly.toLocaleString()}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-[9px] uppercase tracking-widest text-slate-500">Top earner</div>
                       <div className="text-[11px] font-bold text-emerald-300 leading-none mt-0.5">
-                        â‚¹{r.topEarner?.monthly.toLocaleString()}
+                        ₹{r.topEarner?.monthly.toLocaleString()}
                       </div>
                       <div className="text-[9px] text-slate-500 leading-none mt-0.5">{r.topEarner?.name}</div>
                     </div>
@@ -100,15 +100,15 @@ export default function EarnHubPage() {
           </div>
         </section>
 
-        {/* Trust strip Â· earn = real bookings, not a discount */}
+        {/* Trust strip · earn = real bookings, not a discount */}
         <section className="bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6">
           <div className="flex items-start gap-3">
-            <div className="text-2xl">ðŸ¤</div>
+            <div className="text-2xl">🤝</div>
             <div className="flex-1">
               <div className="text-[10px] uppercase tracking-widest text-orange-400 font-black">Why this works</div>
               <h3 className="text-lg font-black text-white">People earn here because Gharpayy ships real homes.</h3>
               <p className="text-sm text-slate-400 mt-1">
-                Every payout below is from a verified booking in one of our 5 zones. Renters don't pay more Â· owners pay
+                Every payout below is from a verified booking in one of our 5 zones. Renters don't pay more · owners pay
                 Gharpayy, and Gharpayy shares with the friend who introduced you. That's it.
               </p>
             </div>

@@ -9,14 +9,14 @@ import { Sparkles, Gift, Clock, Star } from "lucide-react";
 import { PageHeader } from "@/referral-app/components/page-header";
 
 const SEGMENTS = [
-  { label: "50 XP", color: "#f97316", emoji: "âš¡" },
-  { label: "â‚¹25", color: "#3b82f6", emoji: "ðŸ’°" },
-  { label: "100 XP", color: "#22c55e", emoji: "ðŸ”¥" },
-  { label: "â‚¹50", color: "#a855f7", emoji: "ðŸ’Ž" },
-  { label: "200 XP", color: "#f59e0b", emoji: "â­" },
-  { label: "â‚¹100", color: "#ef4444", emoji: "ðŸ‘‘" },
-  { label: "500 XP", color: "#06b6d4", emoji: "ðŸš€" },
-  { label: "â‚¹25", color: "#84cc16", emoji: "ðŸ’¸" },
+  { label: "50 XP", color: "#f97316", emoji: "⚡" },
+  { label: "₹25", color: "#3b82f6", emoji: "💰" },
+  { label: "100 XP", color: "#22c55e", emoji: "🔥" },
+  { label: "₹50", color: "#a855f7", emoji: "💎" },
+  { label: "200 XP", color: "#f59e0b", emoji: "⭐" },
+  { label: "₹100", color: "#ef4444", emoji: "👑" },
+  { label: "500 XP", color: "#06b6d4", emoji: "🚀" },
+  { label: "₹25", color: "#84cc16", emoji: "💸" },
 ];
 
 export default function LuckyDrawPage() {
@@ -56,7 +56,7 @@ export default function LuckyDrawPage() {
           setWinner(json);
           setCanSpin(false);
           setRecentWins(prev => [json.draw, ...prev.slice(0, 4)]);
-          toast({ title: `ðŸŽ‰ ${json.message}`, description: "Your prize has been credited!" });
+          toast({ title: `🎉 ${json.message}`, description: "Your prize has been credited!" });
           setSpinning(false);
         }, 4000);
       } else {
@@ -72,7 +72,7 @@ export default function LuckyDrawPage() {
 
   return (
     <Layout>
-      <PageHeader title="Lucky Draw" subtitle="Spin once daily Â· win XP or cash bonus! ðŸŽ°" />
+      <PageHeader title="Lucky Draw" subtitle="Spin once daily · win XP or cash bonus! 🎰" />
       <div className="p-4 md:p-6 max-w-lg mx-auto space-y-6">
         <div className="text-center">
         </div>
@@ -120,7 +120,7 @@ export default function LuckyDrawPage() {
                   ${canSpin && !spinning ? "bg-orange-500 hover:bg-orange-600 text-white scale-100 hover:scale-105" : "bg-slate-300 text-slate-500 cursor-not-allowed"}`}
               >
                 {spinning ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.5 }}><Star className="w-6 h-6" /></motion.div>
-                  : <>âœ¨<br />SPIN</>}
+                  : <>✨<br />SPIN</>}
               </button>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function LuckyDrawPage() {
               exit={{ scale: 0.5, opacity: 0 }}
               className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6 text-white text-center shadow-xl"
             >
-              <p className="text-5xl mb-2">ðŸŽ‰</p>
+              <p className="text-5xl mb-2">🎉</p>
               <h3 className="text-2xl font-black">{winner.prize}</h3>
               <p className="text-white/80 mt-1">Prize credited to your account!</p>
             </motion.div>

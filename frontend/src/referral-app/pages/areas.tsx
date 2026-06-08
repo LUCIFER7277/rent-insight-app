@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 import { MapPin, Building2, TrendingUp, ChevronRight } from "lucide-react";
 
 const AREA_EMOJIS: Record<string, string> = {
-  koramangala: "â˜•", "hsr-layout": "ðŸš€", indiranagar: "ðŸº", marathahalli: "ðŸ’»",
-  "electronic-city": "ðŸ­", whitefield: "ðŸŒ³", "btm-layout": "ðŸŽ“", bellandur: "ðŸŒŠ",
-  hebbal: "âœˆï¸", yelahanka: "ðŸ¡",
+  koramangala: "☕", "hsr-layout": "🚀", indiranagar: "🍺", marathahalli: "💻",
+  "electronic-city": "🏭", whitefield: "🌳", "btm-layout": "🎓", bellandur: "🌊",
+  hebbal: "✈️", yelahanka: "🏡",
 };
 
 const AREA_COLORS = [
@@ -51,7 +51,7 @@ export default function AreasPage() {
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{AREA_EMOJIS[area.slug] || "ðŸ“"}</span>
+                    <span className="text-2xl">{AREA_EMOJIS[area.slug] || "📍"}</span>
                     <div>
                       <h3 className="font-bold text-slate-900 text-lg leading-tight">{area.name}</h3>
                       <p className="text-slate-500 text-xs">{area.description}</p>
@@ -67,7 +67,7 @@ export default function AreasPage() {
                   </div>
                   <div className="bg-white/60 rounded-lg p-2">
                     <p className="text-xs text-slate-500 font-medium">Avg Rent</p>
-                    <p className="font-black text-slate-800">â‚¹{(area.avgRent / 1000).toFixed(0)}k</p>
+                    <p className="font-black text-slate-800">₹{(area.avgRent / 1000).toFixed(0)}k</p>
                   </div>
                   <div className="bg-white/60 rounded-lg p-2">
                     <p className="text-xs text-slate-500 font-medium">Demand</p>
@@ -80,7 +80,7 @@ export default function AreasPage() {
 
                 {area.metroNearby && (
                   <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-                    ðŸš‡ {area.metroNearby}
+                    🚇 {area.metroNearby}
                   </p>
                 )}
               </motion.div>

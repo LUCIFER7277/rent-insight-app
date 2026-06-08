@@ -34,7 +34,7 @@ export default function PayoutSetupPage() {
         referrerId: referrer.id,
         data: { type: payoutType, upiId: payoutType === "UPI" ? upiId : undefined, accountNumber: payoutType === "BANK" ? accountNumber : undefined, ifscCode: payoutType === "BANK" ? ifscCode : undefined, accountName: payoutType === "BANK" ? accountName : undefined },
       });
-      toast({ title: "Payout method saved! ðŸŽ‰", description: "We'll use this for your next payout." });
+      toast({ title: "Payout method saved! 🎉", description: "We'll use this for your next payout." });
       refetch();
     } catch {
       toast({ title: "Failed to save", variant: "destructive" });
@@ -70,7 +70,7 @@ export default function PayoutSetupPage() {
             {(["UPI", "BANK"] as const).map(t => (
               <button key={t} onClick={() => setPayoutType(t)}
                 className={`flex-1 py-3 rounded-xl font-bold text-sm border-2 transition-all ${payoutType === t ? "bg-primary text-white border-primary" : "bg-white text-slate-600 border-slate-200"}`}>
-                {t === "UPI" ? "ðŸ“± UPI" : "ðŸ¦ Bank Account"}
+                {t === "UPI" ? "📱 UPI" : "🏦 Bank Account"}
               </button>
             ))}
           </div>
@@ -105,10 +105,10 @@ export default function PayoutSetupPage() {
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-2">
           <h3 className="font-bold text-slate-800 text-sm">Payout Schedule</h3>
           <div className="space-y-1.5 text-sm text-slate-600">
-            <p>â€¢ <strong>â‚¹50</strong> paid within 48h of lead verification</p>
-            <p>â€¢ <strong>â‚¹500</strong> paid within 48h of successful booking</p>
-            <p>â€¢ Minimum payout threshold: â‚¹100</p>
-            <p>â€¢ All payouts are processed Monâ€“Fri</p>
+            <p>• <strong>₹50</strong> paid within 48h of lead verification</p>
+            <p>• <strong>₹500</strong> paid within 48h of successful booking</p>
+            <p>• Minimum payout threshold: ₹100</p>
+            <p>• All payouts are processed Mon–Fri</p>
           </div>
         </div>
       </div>

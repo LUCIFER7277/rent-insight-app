@@ -51,20 +51,20 @@ export default function InfluencerDashboard() {
   const d = data || MOCK;
 
   const CAPTIONS = [
-    `ðŸ  Looking for PG in Bangalore? I found some amazing options! Use my link and save on your deposit. Verified, affordable, perfect for students & IT folks.\n\n${d.referralLink}\n\n#BangalorePG #FlatHunting #Gharpayy`,
-    `ðŸ”¥ My friends are earning â‚¹500 per move-in with Gharpayy! Join me Â· refer your contacts to PGs and get paid instantly.\n\n${d.referralLink}\n\n#SideHustle #EarnOnline #Bangalore`,
-    `âœ… Just got â‚¹500 credited! Thanks to @Gharpayy's referral program. Super easy Â· just share your link and earn when anyone books a PG.\n\n${d.referralLink}`,
+    `🏠 Looking for PG in Bangalore? I found some amazing options! Use my link and save on your deposit. Verified, affordable, perfect for students & IT folks.\n\n${d.referralLink}\n\n#BangalorePG #FlatHunting #Gharpayy`,
+    `🔥 My friends are earning ₹500 per move-in with Gharpayy! Join me · refer your contacts to PGs and get paid instantly.\n\n${d.referralLink}\n\n#SideHustle #EarnOnline #Bangalore`,
+    `✅ Just got ₹500 credited! Thanks to @Gharpayy's referral program. Super easy · just share your link and earn when anyone books a PG.\n\n${d.referralLink}`,
   ];
   const [captionIdx, setCaptionIdx] = useState(0);
 
-  const platformIcon = (p: string) => ({ Instagram: "ðŸ“¸", WhatsApp: "ðŸ’¬", Telegram: "âœˆï¸" })[p] || "ðŸ“±";
+  const platformIcon = (p: string) => ({ Instagram: "📸", WhatsApp: "💬", Telegram: "✈️" })[p] || "📱";
 
   return (
     <Layout>
       <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
         <div>
           <h1 className="text-3xl font-black font-display">Creator Hub</h1>
-          <p className="text-muted-foreground">{d.socialHandle} Â· {d.followerCount?.toLocaleString()} followers</p>
+          <p className="text-muted-foreground">{d.socialHandle} · {d.followerCount?.toLocaleString()} followers</p>
         </div>
 
         {/* Stats row */}
@@ -73,7 +73,7 @@ export default function InfluencerDashboard() {
             { label: "Total Clicks", value: d.totalClicks?.toLocaleString(), icon: <MousePointer className="w-4 h-4" />, color: "text-blue-600" },
             { label: "Conversions", value: referrer.bookedReferrals || 0, icon: <Zap className="w-4 h-4" />, color: "text-green-600" },
             { label: "CTR", value: `${d.clickThroughRate}%`, icon: <TrendingUp className="w-4 h-4" />, color: "text-orange-600" },
-            { label: "Earned", value: `â‚¹${d.totalEarned?.toLocaleString()}`, icon: <Share2 className="w-4 h-4" />, color: "text-primary" },
+            { label: "Earned", value: `₹${d.totalEarned?.toLocaleString()}`, icon: <Share2 className="w-4 h-4" />, color: "text-primary" },
           ].map((k, i) => (
             <motion.div key={k.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
               className="bg-card border border-border rounded-2xl p-4">
@@ -92,7 +92,7 @@ export default function InfluencerDashboard() {
               <Copy className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-white/70 text-xs">Earn â‚¹50 on verification + â‚¹500 on every booking via your link</p>
+          <p className="text-white/70 text-xs">Earn ₹50 on verification + ₹500 on every booking via your link</p>
         </div>
 
         {/* Platform performance */}

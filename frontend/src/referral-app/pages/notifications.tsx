@@ -108,7 +108,7 @@ export default function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-slate-900 text-sm">{n.title}</p>
                     <p className="text-slate-500 text-sm leading-snug">{n.message}</p>
-                    {n.amount && <p className="text-green-600 font-bold text-sm mt-1">+â‚¹{n.amount}</p>}
+                    {n.amount && <p className="text-green-600 font-bold text-sm mt-1">+₹{n.amount}</p>}
                     <p className="text-slate-400 text-xs mt-1">{timeAgo(n.createdAt)}</p>
                   </div>
                   {!n.isRead && <div className="w-2.5 h-2.5 bg-primary rounded-full mt-1.5 shrink-0" />}

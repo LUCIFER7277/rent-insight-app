@@ -37,7 +37,7 @@ export default function AdminOwnersPage() {
               Property Owners
             </h1>
             <p className="text-slate-500 text-sm">
-              {isLoading ? "Loading..." : `${owners.length} owners Â· ${owners.reduce((a, o) => a + (o.propertyIds?.length || 0), 0)} properties Â· Switch role to manage their inventory`}
+              {isLoading ? "Loading..." : `${owners.length} owners · ${owners.reduce((a, o) => a + (o.propertyIds?.length || 0), 0)} properties · Switch role to manage their inventory`}
             </p>
           </div>
           <button

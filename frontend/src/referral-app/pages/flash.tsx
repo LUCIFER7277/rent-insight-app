@@ -76,7 +76,7 @@ export default function FlashDealsPage() {
           </div>
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">
-              <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider animate-pulse">âš¡ Flash Deals</span>
+              <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider animate-pulse">⚡ Flash Deals</span>
             </div>
             <h1 className="text-3xl font-black font-display">Limited-Time PG Deals</h1>
             <p className="text-white/80 mt-1">Exclusive discounts + 2-4x referral bonus. Today only!</p>
@@ -99,9 +99,9 @@ export default function FlashDealsPage() {
           </div>
         ) : deals.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-4xl mb-3">ðŸ˜´</p>
+            <p className="text-4xl mb-3">😴</p>
             <p className="font-bold text-slate-600">No flash deals right now</p>
-            <p className="text-sm text-slate-500 mt-1">Check back soon Â· new deals drop daily!</p>
+            <p className="text-sm text-slate-500 mt-1">Check back soon · new deals drop daily!</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -140,15 +140,15 @@ export default function FlashDealsPage() {
                     </div>
 
                     <div className="flex items-baseline gap-3 mb-4">
-                      <span className="text-3xl font-black text-green-600">â‚¹{deal.dealRent.toLocaleString()}</span>
-                      <span className="text-lg text-muted-foreground line-through">â‚¹{deal.originalRent.toLocaleString()}</span>
+                      <span className="text-3xl font-black text-green-600">₹{deal.dealRent.toLocaleString()}</span>
+                      <span className="text-lg text-muted-foreground line-through">₹{deal.originalRent.toLocaleString()}</span>
                       <span className="text-sm text-muted-foreground">/month</span>
                     </div>
 
                     <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 mb-4">
                       <p className="text-sm font-bold text-orange-700">
-                        ðŸŽ Your referral bonus: <span className="text-lg">â‚¹{deal.bonusAmount}</span>
-                        <span className="font-normal text-orange-600"> (normally â‚¹{Math.round(deal.bonusAmount / deal.bonusMultiplier)})</span>
+                        🎁 Your referral bonus: <span className="text-lg">₹{deal.bonusAmount}</span>
+                        <span className="font-normal text-orange-600"> (normally ₹{Math.round(deal.bonusAmount / deal.bonusMultiplier)})</span>
                       </p>
                     </div>
 
@@ -156,7 +156,7 @@ export default function FlashDealsPage() {
                     <div>
                       <div className="flex justify-between text-xs font-medium mb-1">
                         <span className={spotsLeft <= 2 ? "text-red-600 font-bold" : "text-muted-foreground"}>
-                          {spotsLeft <= 2 ? `âš ï¸ Only ${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left!` : `${spotsLeft} spots remaining`}
+                          {spotsLeft <= 2 ? `⚠️ Only ${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left!` : `${spotsLeft} spots remaining`}
                         </span>
                         <span className="text-muted-foreground">{deal.spotsTaken}/{deal.spotsTotal}</span>
                       </div>

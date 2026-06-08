@@ -47,7 +47,7 @@ export default function StreakPage() {
       if (res.ok) {
         setShowFireworks(true);
         setTimeout(() => setShowFireworks(false), 2500);
-        toast({ title: `ðŸ”¥ Day ${json.newStreak} streak!`, description: `+${json.xpAwarded} XP earned${json.bonusAwarded ? ` + â‚¹${json.bonusAwarded} bonus` : ""}` });
+        toast({ title: `🔥 Day ${json.newStreak} streak!`, description: `+${json.xpAwarded} XP earned${json.bonusAwarded ? ` + ₹${json.bonusAwarded} bonus` : ""}` });
         const updated = await fetch(`${BASE}/api/streaks/${referrer.id}`).then(r => r.json());
         setData(updated);
       } else {
@@ -59,10 +59,10 @@ export default function StreakPage() {
   };
 
   const MILESTONES = [
-    { days: 3, reward: "+30 XP", icon: "ðŸ”¥" },
-    { days: 7, reward: "+â‚¹100", icon: "ðŸ’°" },
-    { days: 14, reward: "+200 XP", icon: "âš¡" },
-    { days: 30, reward: "+â‚¹500", icon: "ðŸ‘‘" },
+    { days: 3, reward: "+30 XP", icon: "🔥" },
+    { days: 7, reward: "+₹100", icon: "💰" },
+    { days: 14, reward: "+200 XP", icon: "⚡" },
+    { days: 30, reward: "+₹500", icon: "👑" },
   ];
 
   const last7 = Array.from({ length: 7 }, (_, i) => {
@@ -75,7 +75,7 @@ export default function StreakPage() {
 
   return (
     <Layout>
-      <PageHeader title="Daily Streak" subtitle="Check in every day to keep your streak alive ðŸ”¥" />
+      <PageHeader title="Daily Streak" subtitle="Check in every day to keep your streak alive 🔥" />
       <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-6">
         <div>
           <p className="text-muted-foreground mt-1">Check in every day to earn XP and bonus rewards</p>
@@ -98,7 +98,7 @@ export default function StreakPage() {
                 exit={{}} transition={{ duration: 1.5 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <span className="text-6xl">ðŸŽ‰</span>
+                <span className="text-6xl">🎉</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -114,7 +114,7 @@ export default function StreakPage() {
                 {data?.streak.currentStreak || 0}
               </motion.div>
               <p className="text-white/80 text-xl font-bold mb-1">Day Streak</p>
-              <p className="text-white/60 text-sm">Longest: {data?.streak.longestStreak || 0} days â€¢ Total check-ins: {data?.streak.totalCheckins || 0}</p>
+              <p className="text-white/60 text-sm">Longest: {data?.streak.longestStreak || 0} days • Total check-ins: {data?.streak.totalCheckins || 0}</p>
             </>
           )}
         </motion.div>
@@ -155,7 +155,7 @@ export default function StreakPage() {
                   className={`w-full aspect-square rounded-xl flex items-center justify-center text-lg font-bold
                     ${d.checked ? "bg-orange-500 text-white shadow-md shadow-orange-200" : "bg-muted text-muted-foreground"}`}
                 >
-                  {d.checked ? "ðŸ”¥" : "Â·"}
+                  {d.checked ? "🔥" : "·"}
                 </motion.div>
                 {d.checked && <span className="text-[9px] text-orange-500 font-bold">+{d.xp}</span>}
               </div>

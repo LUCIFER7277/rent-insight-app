@@ -43,7 +43,7 @@ export default function TeamsPage() {
     setJoiningId(teamId);
     try {
       await joinTeam.mutateAsync({ teamId, data: { referrerId: referrer.id, inviteCode } });
-      toast({ title: "Joined team!", description: "You're now part of the team ðŸŽ‰" });
+      toast({ title: "Joined team!", description: "You're now part of the team 🎉" });
       refetch();
     } catch {
       toast({ title: "Failed to join", variant: "destructive" });
@@ -69,7 +69,7 @@ export default function TeamsPage() {
           {(["browse", "leaderboard", "create"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               className={`flex-1 py-2 rounded-lg text-sm font-bold capitalize transition-all ${tab === t ? "bg-white shadow-sm text-slate-900" : "text-slate-500"}`}>
-              {t === "create" ? "Create" : t === "leaderboard" ? "ðŸ† Rankings" : "Browse"}
+              {t === "create" ? "Create" : t === "leaderboard" ? "🏆 Rankings" : "Browse"}
             </button>
           ))}
         </div>
@@ -100,7 +100,7 @@ export default function TeamsPage() {
                       <div className="flex items-center gap-4 text-sm text-slate-600">
                         <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {team.memberCount} members</span>
                         <span className="flex items-center gap-1"><Trophy className="w-3.5 h-3.5 text-yellow-500" /> {team.totalXp} XP</span>
-                        <span className="font-medium text-green-700">â‚¹{team.totalEarned.toLocaleString()}</span>
+                        <span className="font-medium text-green-700">₹{team.totalEarned.toLocaleString()}</span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 items-end">
@@ -134,7 +134,7 @@ export default function TeamsPage() {
               <motion.div key={entry.teamId} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                 className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 ${i === 0 ? "bg-yellow-100 text-yellow-700" : i === 1 ? "bg-slate-100 text-slate-700" : i === 2 ? "bg-orange-100 text-orange-700" : "bg-slate-50 text-slate-500"}`}>
-                  {i === 0 ? "ðŸ¥‡" : i === 1 ? "ðŸ¥ˆ" : i === 2 ? "ðŸ¥‰" : `#${entry.rank}`}
+                  {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${entry.rank}`}
                 </div>
                 <div className="flex-1">
                   <p className="font-bold text-slate-900">{entry.teamName}</p>
@@ -145,7 +145,7 @@ export default function TeamsPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-black text-primary">{entry.totalXp} XP</p>
-                  <p className="text-sm font-bold text-green-600">â‚¹{entry.totalEarned.toLocaleString()}</p>
+                  <p className="text-sm font-bold text-green-600">₹{entry.totalEarned.toLocaleString()}</p>
                 </div>
               </motion.div>
             ))}

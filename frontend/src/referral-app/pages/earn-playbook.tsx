@@ -14,7 +14,7 @@ export default function EarnPlaybookPage() {
   if (!rule) return <div className="p-8 text-white">Channel not found.</div>;
 
   const message = encodeURIComponent(
-    `Hey! I'm sharing Gharpayy Â· direct-to-owner ${persona.title.toLowerCase()} stays in ${zone.display} (${zone.tagline}). Expert replies in minutes. Want me to intro? Â· code GHAR-YOU1`
+    `Hey! I'm sharing Gharpayy · direct-to-owner ${persona.title.toLowerCase()} stays in ${zone.display} (${zone.tagline}). Expert replies in minutes. Want me to intro? · code GHAR-YOU1`
   );
   const wa = `https://api.whatsapp.com/send?text=${message}`;
 
@@ -30,11 +30,11 @@ export default function EarnPlaybookPage() {
           <h1 className="text-2xl md:text-3xl font-black mt-2">{rule.title}</h1>
           <p className="text-sm text-slate-300 mt-2">{rule.blurb}</p>
           <div className="grid grid-cols-3 gap-2 mt-4 text-center">
-            <div className="bg-black/30 rounded-lg py-2"><div className="text-base font-black text-blue-400">â‚¹{rule.payoutOnLead}</div><div className="text-[10px] text-slate-400 uppercase">Per lead</div></div>
-            <div className="bg-black/30 rounded-lg py-2"><div className="text-base font-black text-orange-400">â‚¹{rule.payoutOnTour}</div><div className="text-[10px] text-slate-400 uppercase">Per tour</div></div>
-            <div className="bg-black/30 rounded-lg py-2"><div className="text-base font-black text-green-400">â‚¹{rule.payoutOnBooking}</div><div className="text-[10px] text-slate-400 uppercase">Per booking</div></div>
+            <div className="bg-black/30 rounded-lg py-2"><div className="text-base font-black text-blue-400">₹{rule.payoutOnLead}</div><div className="text-[10px] text-slate-400 uppercase">Per lead</div></div>
+            <div className="bg-black/30 rounded-lg py-2"><div className="text-base font-black text-orange-400">₹{rule.payoutOnTour}</div><div className="text-[10px] text-slate-400 uppercase">Per tour</div></div>
+            <div className="bg-black/30 rounded-lg py-2"><div className="text-base font-black text-green-400">₹{rule.payoutOnBooking}</div><div className="text-[10px] text-slate-400 uppercase">Per booking</div></div>
           </div>
-          <div className="mt-3 text-xs text-orange-300 font-bold">~â‚¹{expectedMonthlyEarning(rule, 8).toLocaleString()}/month at 8 leads/mo</div>
+          <div className="mt-3 text-xs text-orange-300 font-bold">~₹{expectedMonthlyEarning(rule, 8).toLocaleString()}/month at 8 leads/mo</div>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
@@ -64,13 +64,13 @@ export default function EarnPlaybookPage() {
             <MessageCircle className="w-4 h-4" /> Share on WhatsApp
           </a>
           <Link href={`/persona-kit/${persona.id}`} className="block text-center text-xs text-orange-400 hover:underline">
-            Open full persona kit (opener Â· follow-up Â· objections) â†’
+            Open full persona kit (opener · follow-up · objections) →
           </Link>
         </div>
 
         {rule.topEarner && (
           <div className="text-center text-sm text-slate-400 italic">
-            ðŸ† Top earner this month: <strong className="text-white">{rule.topEarner.name}</strong> Â· â‚¹{rule.topEarner.monthly.toLocaleString()}
+            🏆 Top earner this month: <strong className="text-white">{rule.topEarner.name}</strong> · ₹{rule.topEarner.monthly.toLocaleString()}
           </div>
         )}
       </div>

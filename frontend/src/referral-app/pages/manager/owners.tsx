@@ -35,7 +35,7 @@ export default function ManagerOwnersPage() {
               Property Owners
             </h1>
             <p className="text-slate-500 text-sm">
-              {owners.length} owners Â· {owners.reduce((a, o) => a + o.propertyIds.length, 0)} properties Â· Switch role to manage their inventory
+              {owners.length} owners · {owners.reduce((a, o) => a + o.propertyIds.length, 0)} properties · Switch role to manage their inventory
             </p>
           </div>
           <button

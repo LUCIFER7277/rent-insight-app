@@ -31,7 +31,7 @@ import {
 import { useAppStore, useOwnerStore } from "@/referral-app/lib/store";
 import { useOwnersStore, getOwnerProperties } from "@/referral-app/lib/owners-store";
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Types & constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────── Types & constants ─────────────── */
 
 type RoomStatus = "vacant" | "vacating" | "occupied" | "blocked";
 type ActionType = "pitch" | "virtual_tour" | "visit_scheduled" | "visit_done" | "prebooked" | "confirm" | "rent_changed";
@@ -89,7 +89,7 @@ const ACTION_META: Record<ActionType, { label: string; icon: any; cls: string }>
   rent_changed:    { label: "Rent updated",     icon: IndianRupee,   cls: "text-orange-600 bg-orange-50" },
 };
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Storage helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────── Storage helpers ─────────────── */
 
 const K = {
   rooms:  (pid: string) => `gp_rooms_${pid}`,
@@ -111,7 +111,7 @@ function isStale(room: Room) { return hoursSince(room.lastConfirmedAt) > 24; }
 function isSoftLocked(room: Room) {
   return room.softLockUntil ? new Date(room.softLockUntil).getTime() > Date.now() : false;
 }
-function fmtINR(n: number) { return `â‚¹${(n || 0).toLocaleString("en-IN")}`; }
+function fmtINR(n: number) { return `₹${(n || 0).toLocaleString("en-IN")}`; }
 function timeAgo(iso: string) {
   const h = hoursSince(iso);
   if (h < 1) return `${Math.max(1, Math.round(h * 60))}m ago`;
@@ -119,7 +119,7 @@ function timeAgo(iso: string) {
   return `${Math.round(h / 24)}d ago`;
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────── Page ─────────────── */
 
 export default function ManagerRoomsPage() {
   const { id } = useParams();
@@ -182,7 +182,7 @@ export default function ManagerRoomsPage() {
   useEffect(() => { if (pid) save(K.rooms(pid), rooms); }, [pid, rooms]);
   useEffect(() => { if (pid) save(K.visits(pid), visits); }, [pid, visits]);
 
-  /* â”€â”€ derived KPIs â”€â”€ */
+  /* ── derived KPIs ── */
   const kpis = useMemo(() => {
     const sellable = rooms.filter((r) => (r.status === "vacant" || r.status === "vacating") && !isStale(r)).length;
     const locked = rooms.filter(isStale).length;
@@ -197,7 +197,7 @@ export default function ManagerRoomsPage() {
     return { sellable, locked, occupancy, revenueAtRisk, visitsThisWeek, compliance };
   }, [rooms, visits]);
 
-  /* â”€â”€ mutations â”€â”€ */
+  /* ── mutations ── */
   const logAction = async (roomId: string, type: ActionType, note?: string) => {
     try {
       await addActionMut.mutateAsync({
@@ -244,18 +244,18 @@ export default function ManagerRoomsPage() {
     setVisits((vs) => vs.filter((v) => v.roomId !== rid));
   };
 
-  /* â”€â”€ share / refer (by room) â”€â”€ */
+  /* ── share / refer (by room) ── */
   const shareRoom = (room: Room) => {
     if (isStale(room)) { toast({ title: "Confirm room first", description: "Stale rooms can't be referred.", variant: "destructive" }); return; }
     const pname = property?.name || "the PG";
     const area = property?.area || "";
-    const text = `Hi! Room *${room.roomNumber}* at *${pname}*${area ? ` (${area})` : ""} â€” ${room.beds} bed, ${STATUS_META[room.status].label}${room.vacantDate ? ` from ${room.vacantDate}` : ""}. Rent ${fmtINR(room.expectedRent)}/mo. Interested? I can schedule a visit.`;
+    const text = `Hi! Room *${room.roomNumber}* at *${pname}*${area ? ` (${area})` : ""} — ${room.beds} bed, ${STATUS_META[room.status].label}${room.vacantDate ? ` from ${room.vacantDate}` : ""}. Rent ${fmtINR(room.expectedRent)}/mo. Interested? I can schedule a visit.`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
     logAction(room.id, "pitch", "WhatsApp share");
     setRooms(rs => rs.map(r => r.id === room.id ? { ...r, softLockUntil: new Date(Date.now() + 6 * 36e5).toISOString() } : r));
   };
 
-  /* â”€â”€ visit scheduling â”€â”€ */
+  /* ── visit scheduling ── */
   const scheduleVisit = async (roomId: string) => {
     if (!visitDraft.customerName || !visitDraft.scheduledAt) return;
     const v: Visit = {
@@ -279,7 +279,7 @@ export default function ManagerRoomsPage() {
     }
   };
 
-  /* â”€â”€ render â”€â”€ */
+  /* ── render ── */
 
   if (ownerToken && (isRealPropsLoading || isRoomsLoading)) {
     return (
@@ -317,7 +317,7 @@ export default function ManagerRoomsPage() {
               <BedDouble className="w-7 h-7 text-primary" /> {property.name}
             </h1>
             <p className="text-slate-500 text-sm mt-1 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5" /> {property.area} Â· Inventory OS
+              <MapPin className="w-3.5 h-3.5" /> {property.area} · Inventory OS
             </p>
           </div>
           <Button onClick={() => setShowAdd(true)} className="shrink-0">
@@ -367,8 +367,8 @@ export default function ManagerRoomsPage() {
                     {(Object.keys(STATUS_META) as RoomStatus[]).map((s) => <option key={s} value={s}>{STATUS_META[s].label}</option>)}
                   </select>
                 </Field>
-                <Field label="Actual rent (â‚¹)"><Input type="number" value={draft.actualRent || ""} onChange={(e) => setDraft({ ...draft, actualRent: Number(e.target.value) })} /></Field>
-                <Field label="Expected rent (â‚¹)"><Input type="number" value={draft.expectedRent || ""} onChange={(e) => setDraft({ ...draft, expectedRent: Number(e.target.value) })} /></Field>
+                <Field label="Actual rent (₹)"><Input type="number" value={draft.actualRent || ""} onChange={(e) => setDraft({ ...draft, actualRent: Number(e.target.value) })} /></Field>
+                <Field label="Expected rent (₹)"><Input type="number" value={draft.expectedRent || ""} onChange={(e) => setDraft({ ...draft, expectedRent: Number(e.target.value) })} /></Field>
                 <Field label="Floor rent (private)"><Input type="number" value={draft.floorRent || ""} onChange={(e) => setDraft({ ...draft, floorRent: Number(e.target.value) })} /></Field>
                 <Field label="Vacant from"><Input type="date" value={draft.vacantDate || ""} onChange={(e) => setDraft({ ...draft, vacantDate: e.target.value })} /></Field>
               </div>
@@ -393,13 +393,13 @@ export default function ManagerRoomsPage() {
         )}
         {tab === "visits" && <VisitsTab visits={visits} rooms={rooms} onMark={markVisit} />}
         {tab === "ledger" && <LedgerTab actions={actions} rooms={rooms} />}
-        {tab === "pricing" && <PricingTab rooms={rooms} onApply={(rid, rent) => { update(rid, { expectedRent: rent }); logAction(rid, "rent_changed", `â†’ ${fmtINR(rent)}`); }} />}
+        {tab === "pricing" && <PricingTab rooms={rooms} onApply={(rid, rent) => { update(rid, { expectedRent: rent }); logAction(rid, "rent_changed", `→ ${fmtINR(rent)}`); }} />}
       </div>
     </Layout>
   );
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────── Sub-components ─────────────── */
 
 function Field({ label, children }: any) {
   return (
@@ -423,7 +423,7 @@ function DailyRitual({ locked, total, compliance, onConfirmAll }: any) {
               {hasLocked ? `${locked} of ${total} rooms need today's confirmation` : "All rooms confirmed today"}
             </p>
             <p className={`text-xs mt-0.5 ${hasLocked ? "text-amber-700" : "text-emerald-700"}`}>
-              Compliance score Â· {compliance}%. Unconfirmed rooms are auto-locked from referrals to prevent ghost selling.
+              Compliance score · {compliance}%. Unconfirmed rooms are auto-locked from referrals to prevent ghost selling.
             </p>
           </div>
         </div>
@@ -478,7 +478,7 @@ function InventoryTab({ rooms, visits, onConfirm, onStatus, onShare, onRemove, o
         <div key={s}>
           <div className="flex items-center gap-2 mb-2">
             <span className={`w-2 h-2 rounded-full ${STATUS_META[s].dot}`} />
-            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">{STATUS_META[s].label} Â· {grouped[s].length}</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">{STATUS_META[s].label} · {grouped[s].length}</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {grouped[s].map((room) => (
@@ -527,7 +527,7 @@ function RoomCard({ room, visits, onConfirm, onStatus, onShare, onRemove, openVi
             {room.vacantDate && <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {room.vacantDate}</span>}
             <span className="flex items-center gap-1">
               <IndianRupee className="w-3 h-3" />
-              {fmtINR(room.expectedRent).replace("â‚¹", "")}/mo
+              {fmtINR(room.expectedRent).replace("₹", "")}/mo
               {rentDelta !== 0 && (
                 <span className={`ml-1 inline-flex items-center gap-0.5 text-[10px] font-bold ${trendUp ? "text-emerald-600" : "text-rose-600"}`}>
                   {trendUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
@@ -556,7 +556,7 @@ function RoomCard({ room, visits, onConfirm, onStatus, onShare, onRemove, openVi
           <p className="text-[10px] font-bold uppercase text-amber-700 mb-1">Upcoming visits</p>
           {visits.slice(0, 2).map((v: Visit) => (
             <div key={v.id} className="text-xs text-amber-900 flex items-center gap-1.5">
-              <Eye className="w-3 h-3" /> {v.customerName} Â· {new Date(v.scheduledAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+              <Eye className="w-3 h-3" /> {v.customerName} · {new Date(v.scheduledAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
               <Badge variant="outline" className="text-[9px] bg-white border-amber-200 ml-auto">{v.type}</Badge>
             </div>
           ))}
@@ -588,7 +588,7 @@ function RoomCard({ room, visits, onConfirm, onStatus, onShare, onRemove, openVi
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
             className="mt-3 overflow-hidden">
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
-              <p className="text-xs font-bold text-slate-700">Schedule a visit Â· Room {room.roomNumber}</p>
+              <p className="text-xs font-bold text-slate-700">Schedule a visit · Room {room.roomNumber}</p>
               <div className="grid grid-cols-2 gap-2">
                 <Input placeholder="Customer name" value={visitDraft.customerName || ""} onChange={(e: any) => setVisitDraft({ ...visitDraft, customerName: e.target.value })} className="h-9 text-xs" />
                 <Input placeholder="Phone (optional)" value={visitDraft.customerPhone || ""} onChange={(e: any) => setVisitDraft({ ...visitDraft, customerPhone: e.target.value })} className="h-9 text-xs" />
@@ -631,7 +631,7 @@ function VisitsTab({ visits, rooms, onMark }: any) {
                 }`}>{v.status.replace("_", " ")}</Badge>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Room {room?.roomNumber || "?"} Â· {new Date(v.scheduledAt).toLocaleString()} {v.customerPhone && `Â· ${v.customerPhone}`}
+                Room {room?.roomNumber || "?"} · {new Date(v.scheduledAt).toLocaleString()} {v.customerPhone && `· ${v.customerPhone}`}
               </p>
             </div>
             {v.status === "scheduled" && (
@@ -679,7 +679,7 @@ function LedgerTab({ actions, rooms }: any) {
             <div key={a.id} className="p-3 flex items-start gap-3">
               <div className={`w-8 h-8 rounded-lg grid place-items-center shrink-0 ${M.cls}`}><M.icon className="w-4 h-4" /></div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-slate-900"><span className="font-bold">{M.label}</span> {room && <span className="text-slate-500">Â· Room {room.roomNumber}</span>}</p>
+                <p className="text-sm text-slate-900"><span className="font-bold">{M.label}</span> {room && <span className="text-slate-500">· Room {room.roomNumber}</span>}</p>
                 {a.note && <p className="text-xs text-slate-500 mt-0.5">{a.note}</p>}
               </div>
               <p className="text-[10px] text-slate-400 shrink-0">{timeAgo(a.at)}</p>
@@ -717,7 +717,7 @@ function PricingTab({ rooms, onApply }: any) {
           <div key={r.id} className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p className="font-bold text-slate-900 text-sm">Room {r.roomNumber}</p>
-              <p className="text-xs text-slate-500">Current ask {fmtINR(r.expectedRent)} Â· demand {demand}/100{r.floorRent ? ` Â· floor ${fmtINR(r.floorRent)}` : ""}</p>
+              <p className="text-xs text-slate-500">Current ask {fmtINR(r.expectedRent)} · demand {demand}/100{r.floorRent ? ` · floor ${fmtINR(r.floorRent)}` : ""}</p>
             </div>
             <div className="flex items-center gap-2">
               <div className={`text-xs font-bold flex items-center gap-1 ${dir === "up" ? "text-emerald-600" : dir === "down" ? "text-rose-600" : "text-slate-500"}`}>
@@ -744,7 +744,7 @@ function Empty({ icon: Icon, text }: any) {
   );
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Seed (first-visit demo data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────── Seed (first-visit demo data) ─────────────── */
 
 function seedRooms(): Room[] {
   const now = new Date();

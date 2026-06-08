@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import { useOwnerStore } from "@/referral-app/lib/store";
 import { useGetManagerStats, useGetManagerProperties, useGetRealOwnerProperties } from "@/referral-app/api";
 import { Layout } from "@/referral-app/components/layout";
@@ -99,10 +99,10 @@ export default function OwnerDashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
           {[
-            { label: "Monthly Revenue", value: `â‚¹${(stats?.monthlyRevenue || 0).toLocaleString()}`, icon: "ðŸ’°", color: "bg-green-50 border-green-100" },
-            { label: "Total Leads", value: stats?.totalLeadsReceived || 0, icon: "ðŸŽ¯", color: "bg-orange-50 border-orange-100" },
-            { label: "Total Bookings", value: stats?.totalBookings || 0, icon: "ðŸ”‘", color: "bg-purple-50 border-purple-100" },
-            { label: "Referral Earnings", value: `â‚¹${(stats?.referralEarnings || 0).toLocaleString()}`, icon: "ðŸŽ", color: "bg-yellow-50 border-yellow-100" },
+            { label: "Monthly Revenue", value: `₹${(stats?.monthlyRevenue || 0).toLocaleString()}`, icon: "💰", color: "bg-green-50 border-green-100" },
+            { label: "Total Leads", value: stats?.totalLeadsReceived || 0, icon: "🎯", color: "bg-orange-50 border-orange-100" },
+            { label: "Total Bookings", value: stats?.totalBookings || 0, icon: "🔑", color: "bg-purple-50 border-purple-100" },
+            { label: "Referral Earnings", value: `₹${(stats?.referralEarnings || 0).toLocaleString()}`, icon: "🎁", color: "bg-yellow-50 border-yellow-100" },
           ].map((item, i) => (
             <motion.div key={item.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
               className={`${item.color} border rounded-2xl p-4`}>
@@ -140,7 +140,7 @@ export default function OwnerDashboardPage() {
                 <div key={p.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                   <div>
                     <p className="font-bold text-slate-800">{p.name}</p>
-                    <p className="text-sm text-slate-500">{p.area || "Area"} â€¢ â‚¹{(p.monthlyRent || p.prices?.min || 0).toLocaleString()}/mo</p>
+                    <p className="text-sm text-slate-500">{p.area || "Area"} • ₹{(p.monthlyRent || p.prices?.min || 0).toLocaleString()}/mo</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-1 rounded-lg text-xs font-bold ${p.availability === "AVAILABLE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>

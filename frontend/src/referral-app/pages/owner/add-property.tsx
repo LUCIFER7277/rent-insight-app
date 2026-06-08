@@ -73,7 +73,7 @@ export default function OwnerAddPropertyPage() {
           referralBonus: Number(referralBonus || 0),
         },
       });
-      toast({ title: "PG listed! ðŸŽ‰", description: "Your property is now visible to the network" });
+      toast({ title: "PG listed! 🎉", description: "Your property is now visible to the network" });
       setLocation("/owner/properties");
     } catch (err: any) {
       toast({ title: "Failed to create property", description: err.message, variant: "destructive" });
@@ -133,11 +133,11 @@ export default function OwnerAddPropertyPage() {
             <h2 className="font-bold text-slate-900">Pricing & Rooms</h2>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Monthly Rent (â‚¹) *</label>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Monthly Rent (₹) *</label>
                 <Input type="number" placeholder="8000" value={rent} onChange={e => setRent(e.target.value)} />
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Security Deposit (â‚¹)</label>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Security Deposit (₹)</label>
                 <Input type="number" placeholder="16000" value={deposit} onChange={e => setDeposit(e.target.value)} />
               </div>
               <div>
@@ -156,7 +156,7 @@ export default function OwnerAddPropertyPage() {
                 {(["MALE", "FEMALE", "ANY"] as const).map(g => (
                   <button key={g} onClick={() => setGender(g)}
                     className={`flex-1 py-2 rounded-lg text-sm font-bold border-2 transition-all ${gender === g ? "bg-primary text-white border-primary" : "bg-white text-slate-600 border-slate-200"}`}>
-                    {g === "MALE" ? "ðŸ‘¨ Boys" : g === "FEMALE" ? "ðŸ‘© Girls" : "ðŸ¤ Co-ed"}
+                    {g === "MALE" ? "👨 Boys" : g === "FEMALE" ? "👩 Girls" : "🤝 Co-ed"}
                   </button>
                 ))}
               </div>
@@ -194,9 +194,9 @@ export default function OwnerAddPropertyPage() {
           {/* Referral Bonus */}
           <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5">
             <h2 className="font-bold text-orange-900 mb-2">Extra Referral Bonus (Optional)</h2>
-            <p className="text-orange-700 text-sm mb-3">Offer extra cash on top of the standard â‚¹500 to attract more referrers to your PG.</p>
+            <p className="text-orange-700 text-sm mb-3">Offer extra cash on top of the standard ₹500 to attract more referrers to your PG.</p>
             <div className="flex items-center gap-3">
-              <span className="text-slate-600 font-medium">â‚¹</span>
+              <span className="text-slate-600 font-medium">₹</span>
               <Input type="number" placeholder="0" value={referralBonus} onChange={e => setReferralBonus(e.target.value)}
                 className="max-w-32" />
               <span className="text-sm text-slate-500">extra bonus per booking</span>
@@ -204,7 +204,7 @@ export default function OwnerAddPropertyPage() {
           </div>
 
           <Button onClick={handleSubmit} disabled={addRealPropertyMut.isPending || createPropertyMock.isPending} className="w-full h-12 text-base font-bold">
-            {addRealPropertyMut.isPending || createPropertyMock.isPending ? "Listing..." : "List My PG ðŸ "}
+            {addRealPropertyMut.isPending || createPropertyMock.isPending ? "Listing..." : "List My PG 🏠"}
           </Button>
         </div>
       </div>

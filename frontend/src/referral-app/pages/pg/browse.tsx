@@ -86,7 +86,7 @@ export default function PgBrowsePage() {
                 {[undefined, 7000, 10000, 15000, 20000].map(price => (
                   <button key={price ?? "all"} onClick={() => setMaxPrice(price)}
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${maxPrice === price ? "bg-primary text-white border-primary" : "bg-white text-slate-600 border-slate-200"}`}>
-                    {price ? `â‰¤â‚¹${price.toLocaleString()}` : "Any"}
+                    {price ? `≤₹${price.toLocaleString()}` : "Any"}
                   </button>
                 ))}
               </div>
@@ -145,11 +145,11 @@ export default function PgBrowsePage() {
                     <div className="flex items-center gap-1 text-slate-500 text-sm mb-3">
                       <MapPin className="w-3 h-3" />
                       <span>{p.area}</span>
-                      {p.nearbyMetro && <span className="text-slate-400">Â· ðŸš‡ {p.nearbyMetro}</span>}
+                      {p.nearbyMetro && <span className="text-slate-400">· 🚇 {p.nearbyMetro}</span>}
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-xl font-black text-slate-900">â‚¹{p.monthlyRent.toLocaleString()}<span className="text-sm font-normal text-slate-500">/mo</span></span>
-                      <span className="text-sm text-slate-400">Â·</span>
+                      <span className="text-xl font-black text-slate-900">₹{p.monthlyRent.toLocaleString()}<span className="text-sm font-normal text-slate-500">/mo</span></span>
+                      <span className="text-sm text-slate-400">·</span>
                       <span className="text-sm text-slate-500">{GENDER_LABELS[p.gender]}</span>
                     </div>
                   </div>
@@ -162,7 +162,7 @@ export default function PgBrowsePage() {
                       </div>
                     )}
                     {p.referralBonus > 0 && (
-                      <Badge className="bg-orange-500 text-white text-[10px]">+â‚¹{p.referralBonus} bonus</Badge>
+                      <Badge className="bg-orange-500 text-white text-[10px]">+₹{p.referralBonus} bonus</Badge>
                     )}
                     <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-primary transition-colors" />
                   </div>
@@ -171,7 +171,7 @@ export default function PgBrowsePage() {
                   <div className="flex gap-1.5 mt-3 flex-wrap">
                     {(p.amenities as string[]).slice(0, 4).map((a: string) => (
                       <span key={a} className="flex items-center gap-1 px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-full text-[11px] text-slate-600 font-medium">
-                        {AMENITY_ICONS[a.toLowerCase()] || "Â·"} {a}
+                        {AMENITY_ICONS[a.toLowerCase()] || "·"} {a}
                       </span>
                     ))}
                   </div>
