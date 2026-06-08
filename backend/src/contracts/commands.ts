@@ -1,0 +1,19 @@
+export class Command { _id?: string; type: string = ""; payload: any; static parse(data: any): any { return data; } static safeParse(data: any): any { return { success: true, data }; } }
+export class CreateLeadCmd extends Command {}
+export class UpdateLeadCmd extends Command {}
+export class AssignLeadCmd extends Command {}
+export class ChangeStageCmd extends Command {}
+export class DeleteLeadCmd extends Command {}
+export class CreateTodoCmd extends Command {}
+export class UpdateTodoCmd extends Command {}
+export class AssignTodoCmd extends Command {}
+export class AcceptTodoCmd extends Command {}
+export class DeclineTodoCmd extends Command {}
+export class CompleteTodoCmd extends Command {}
+export class CancelTodoCmd extends Command {}
+export class ScheduleTourCmd extends Command {}
+export class RescheduleTourCmd extends Command {}
+export class CancelTourCmd extends Command {}
+export class CompleteTourCmd extends Command {}
+export class UpdateTourCmd extends Command {}
+export class UpdatePostTourCmd extends Command {}
