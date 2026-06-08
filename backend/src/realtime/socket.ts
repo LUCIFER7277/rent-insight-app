@@ -3,7 +3,7 @@ import { createAdapter } from "@socket.io/redis-adapter";
 import type { FastifyInstance } from "fastify";
 import { redisPub, redisSub, REDIS_CHANNELS } from "../db/redis.js";
 import { verifyToken, type JwtClaims } from "../auth/auth.js";
-import { corsOrigins } from "../config/env.js";
+import { corsOrigins, env } from "../config/env.js";
 import type { DomainEvent } from "../contracts/events.js";
 import { eventsAfter } from "./event-bus.js";
 
@@ -44,7 +44,16 @@ function evictOldestIfNeeded(socket: Socket, state: SocketState) {
 
 export async function attachSocketIO(app: FastifyInstance) {
   io = new SocketServer(app.server, {
-    cors: { origin: corsOrigins, credentials: true },
+    cors: { 
+      origin: (origin, cb) => {
+        if (!origin) return cb(null, true);
+        if (corsOrigins.includes("*")) return cb(null, true);
+        if (corsOrigins.includes(origin)) return cb(null, true);
+        if (env.NODE_ENV === "development") return cb(null, true);
+        return cb(null, false);
+      }, 
+      credentials: true 
+    },
     transports: ["websocket", "polling"],
     // Idle WS gets pinged every 25s; client without pong in 60s = dead.
     pingInterval: 25_000,
