@@ -7,9 +7,9 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "rm -rf dist && tsc -p tsconfig.json",
-    "start": "node dist/server/src/index.js",
+    "start": "node dist/backend/src/index.js",
     "worker": "tsx src/workers/index.ts",
-    "worker:prod": "node dist/server/src/workers/index.js",
+    "worker:prod": "node dist/backend/src/workers/index.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
