@@ -15,14 +15,14 @@ for (const envPath of [
 const Env = z.object({
   MONGO_URL: z.string().min(1),
   MONGO_DB: z.string().default("gharpayy"),
-  REDIS_URL: z.string().default("redis://localhost:6379"),
+  REDIS_URL: z.string().default(process.env.REDIS_URL || "redis://localhost:6379"),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be >=32 chars"),
   JWT_ACCESS_TTL: z.string().default("15m"),
   JWT_REFRESH_TTL: z.string().default("30d"),
   PORT: z.coerce.number().default(4000),
   HOST: z.string().default("0.0.0.0"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  CORS_ORIGINS: z.string().default("http://localhost:3001"),
+  CORS_ORIGINS: z.string().default(process.env.CORS_ORIGINS || "*"),
   DEFAULT_TENANT: z.string().default("gharpayy"),
   LOG_LEVEL: z.string().default("info"),
 });

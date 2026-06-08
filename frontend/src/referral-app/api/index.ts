@@ -888,8 +888,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const getBackendUrl = () => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL.replace(/\/$/, "");
-  if (typeof window === "undefined") return "http://localhost:4000";
-  return `http://${window.location.hostname}:4000`;
+  return "";
 };
 
 export function useOwnerLogin() {
