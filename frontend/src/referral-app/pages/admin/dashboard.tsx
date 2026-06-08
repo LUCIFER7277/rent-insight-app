@@ -48,7 +48,7 @@ export default function AdminDashPage() {
     );
   }
 
-  const s = stats!;
+  const s = stats || { occupancyRate: 0, occupiedRooms: 0, totalRooms: 0, totalProperties: 0, monthlyRevenue: 0, totalLeadsReceived: 0, totalBookings: 0, referralEarnings: 0 };
   const occupancyPct = Math.round(s.occupancyRate * 100);
 
   return (
