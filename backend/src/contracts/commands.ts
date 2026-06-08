@@ -1,4 +1,4 @@
-export class Command { _id?: string; type: string = ""; payload: any; static parse(data: any): any { return data; } static safeParse(data: any): any { return { success: true, data }; } }
+export class Command { _id: string = ""; type: string = ""; payload: any; static parse(data: any): any { return data; } static safeParse(data: any): any { return { success: true, data }; } }
 export class CreateLeadCmd extends Command {}
 export class UpdateLeadCmd extends Command {}
 export class AssignLeadCmd extends Command {}
@@ -17,3 +17,6 @@ export class CancelTourCmd extends Command {}
 export class CompleteTourCmd extends Command {}
 export class UpdateTourCmd extends Command {}
 export class UpdatePostTourCmd extends Command {}
+export class LogActivityCmd extends Command {}
+export class UpdateActivityCmd extends Command {}
+export class DeleteActivityCmd extends Command {}

@@ -92,21 +92,21 @@ export async function dispatch(rawCmd: Command, user: JwtClaims) {
 async function applyCommand(cmd: Command, user: JwtClaims): Promise<LedgerDoc["result"]> {
   // Delegate todo commands
   if (cmd.type.startsWith("cmd.todo.")) {
-    const { applyTodoCommand } = await import("../todos/command-handlers.ts");
+    const { applyTodoCommand } = await import("../todos/command-handlers.js");
     return (applyTodoCommand as any)(cmd, user);
   }
   // Delegate tour commands
   if (cmd.type.startsWith("cmd.tour.")) {
-    const { applyTourCommand } = await import("../tours/command-handlers.ts");
+    const { applyTourCommand } = await import("../tours/command-handlers.js");
     return (applyTourCommand as any)(cmd, user);
   }
   // Delegate activity commands
   if (cmd.type.startsWith("cmd.activity.")) {
-    const { applyActivityCommand } = await import("../activities/command-handlers.ts");
+    const { applyActivityCommand } = await import("../activities/command-handlers.js");
     return (applyActivityCommand as any)(cmd, user);
   }
 
-  const { autoLogActivity } = await import("../activities/command-handlers.ts");
+  const { autoLogActivity } = await import("../activities/command-handlers.js");
 
   const now = new Date().toISOString();
   const correlationId = cmd._id;
