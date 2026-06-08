@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { Card, CardContent } from "@/referral-app/components/ui/card";
 import { AlertCircle } from "lucide-react";
 

@@ -1,4 +1,4 @@
-import { useGetAdminNotifications, useMarkAdminNotificationRead } from "@/referral-app/api";
+﻿import { useGetAdminNotifications, useMarkAdminNotificationRead } from "@/referral-app/api";
 import { Layout } from "@/referral-app/components/layout";
 import { useAdminStore } from "@/referral-app/lib/store";
 import { useLocation } from "wouter";

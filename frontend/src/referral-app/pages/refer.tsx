@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
@@ -21,12 +21,12 @@ import { readReferContext } from "@/lib/referral-context";
 import { CAPTAIN_BY_ID, captainForArea, captainForPersona, captainWaLink, type Expert } from "@/lib/captains";
 
 const PROPERTY_TYPES = [
-  { value: "PG",      label: "🏠 PG / Hostel",           desc: "Paying Guest accommodation" },
-  { value: "1BHK",    label: "🏢 1BHK Flat",              desc: "1 bedroom flat / apartment" },
-  { value: "2BHK",    label: "🏘️ 2BHK Flat",              desc: "2 bedroom flat / apartment" },
-  { value: "3BHK",    label: "🏗️ 3BHK+ Flat",             desc: "3 or more bedrooms" },
-  { value: "HOUSE",   label: "🏡 Independent House",       desc: "Villa or independent home" },
-  { value: "STUDIO",  label: "🛏️ Studio / 1RK",            desc: "Single room with attached bath" },
+  { value: "PG",      label: "ðŸ  PG / Hostel",           desc: "Paying Guest accommodation" },
+  { value: "1BHK",    label: "ðŸ¢ 1BHK Flat",              desc: "1 bedroom flat / apartment" },
+  { value: "2BHK",    label: "ðŸ˜ï¸ 2BHK Flat",              desc: "2 bedroom flat / apartment" },
+  { value: "3BHK",    label: "ðŸ—ï¸ 3BHK+ Flat",             desc: "3 or more bedrooms" },
+  { value: "HOUSE",   label: "ðŸ¡ Independent House",       desc: "Villa or independent home" },
+  { value: "STUDIO",  label: "ðŸ›ï¸ Studio / 1RK",            desc: "Single room with attached bath" },
 ];
 
 const formSchema = z.object({
@@ -126,7 +126,7 @@ export default function ReferPage() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-3xl font-black font-display text-foreground mb-2">Referral Sent! 🎉</h2>
+            <h2 className="text-3xl font-black font-display text-foreground mb-2">Referral Sent! ðŸŽ‰</h2>
             <p className="text-muted-foreground mb-6">
               We'll contact <span className="font-bold text-foreground">{successData.name}</span> shortly to help them find their perfect home.
             </p>
@@ -160,14 +160,14 @@ export default function ReferPage() {
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-sm font-bold mt-0.5">1</div>
                 <div>
-                  <p className="font-bold text-foreground">Earn ₹50</p>
+                  <p className="font-bold text-foreground">Earn â‚¹50</p>
                   <p className="text-sm text-muted-foreground">When lead is verified</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-sm font-bold mt-0.5">2</div>
                 <div>
-                  <p className="font-bold text-foreground">Earn ₹500</p>
+                  <p className="font-bold text-foreground">Earn â‚¹500</p>
                   <p className="text-sm text-muted-foreground">When they move in to their new home</p>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function ReferPage() {
                 Refer Another Person
               </Button>
               <Button variant="outline" onClick={() => setLocation("/home")} className="w-full h-12">
-                ← Back to Dashboard
+                â† Back to Dashboard
               </Button>
             </div>
           </motion.div>
@@ -186,11 +186,11 @@ export default function ReferPage() {
     );
   }
 
-  // GUARD · Super simple
+  // GUARD Â· Super simple
   if (persona === "GUARD") {
     return (
       <Layout>
-        <PageHeader title="Paisa Kamao" subtitle="PG · Flat · Ghar · Sab kuch refer karo" backHref="/home" dark />
+        <PageHeader title="Paisa Kamao" subtitle="PG Â· Flat Â· Ghar Â· Sab kuch refer karo" backHref="/home" dark />
         <div className="p-4 max-w-md mx-auto mt-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -234,7 +234,7 @@ export default function ReferPage() {
                 className="w-full h-16 text-2xl font-black rounded-full bg-green-500 hover:bg-green-600 text-white shadow-[0_8px_0_rgb(22,163,74)] active:translate-y-2 active:shadow-none transition-all"
                 disabled={submitReferral.isPending}
               >
-                {submitReferral.isPending ? "Ruko..." : "BHEJ DO 🚀"}
+                {submitReferral.isPending ? "Ruko..." : "BHEJ DO ðŸš€"}
               </Button>
             </form>
           </Form>
@@ -246,10 +246,10 @@ export default function ReferPage() {
   // STANDARD / STUDENT / EARNER Form
   return (
     <Layout>
-      <PageHeader title="Send a friend to the right expert" subtitle="We know Bengaluru. Your friend gets the truth · you get ₹500 on move-in." backHref="/home" />
+      <PageHeader title="Send a friend to the right expert" subtitle="We know Bengaluru. Your friend gets the truth Â· you get â‚¹500 on move-in." backHref="/home" />
       <div className="p-4 md:p-6 max-w-2xl mx-auto">
 
-        {/* Context banner · shown when arriving from Insights */}
+        {/* Context banner Â· shown when arriving from Insights */}
         {(ctx.area || ctx.persona || ctx.expert) && (
           <div className="mb-5 rounded-2xl border border-orange-200 bg-orange-50/70 p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-black">
@@ -260,7 +260,7 @@ export default function ReferPage() {
                 Goes straight to {ctxCaptain.name}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                {ctx.area ? `From ${ctx.area} insights` : ctx.persona ? `Matched via ${ctx.persona}` : ctxCaptain.title} · {ctxCaptain.responseSla}
+                {ctx.area ? `From ${ctx.area} insights` : ctx.persona ? `Matched via ${ctx.persona}` : ctxCaptain.title} Â· {ctxCaptain.responseSla}
               </p>
             </div>
           </div>
@@ -271,7 +271,7 @@ export default function ReferPage() {
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="font-bold text-foreground">Your Gharpayy Homes Link</p>
-              <p className="text-sm text-muted-foreground">Share · PGs, flats & houses all covered</p>
+              <p className="text-sm text-muted-foreground">Share Â· PGs, flats & houses all covered</p>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <Button variant="outline" className="flex-1 sm:flex-none gap-2 border-primary/20 hover:bg-primary/10" onClick={copyLink}>
@@ -342,10 +342,10 @@ export default function ReferPage() {
                         <SelectTrigger className="h-12"><SelectValue placeholder="Select timeline" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="IMMEDIATE">🔥 Immediate</SelectItem>
-                        <SelectItem value="WITHIN_WEEK">📅 Within a week</SelectItem>
-                        <SelectItem value="WITHIN_MONTH">🗓️ Within a month</SelectItem>
-                        <SelectItem value="EXPLORING">🔍 Just exploring</SelectItem>
+                        <SelectItem value="IMMEDIATE">ðŸ”¥ Immediate</SelectItem>
+                        <SelectItem value="WITHIN_WEEK">ðŸ“… Within a week</SelectItem>
+                        <SelectItem value="WITHIN_MONTH">ðŸ—“ï¸ Within a month</SelectItem>
+                        <SelectItem value="EXPLORING">ðŸ” Just exploring</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -361,7 +361,7 @@ export default function ReferPage() {
               </div>
 
               <Button type="submit" className="w-full h-14 text-lg font-bold" disabled={submitReferral.isPending}>
-                {submitReferral.isPending ? "Submitting..." : `Submit Referral · ${PROPERTY_TYPES.find(p => p.value === selectedType)?.label ?? "🏠 PG"}`}
+                {submitReferral.isPending ? "Submitting..." : `Submit Referral Â· ${PROPERTY_TYPES.find(p => p.value === selectedType)?.label ?? "ðŸ  PG"}`}
               </Button>
             </form>
           </Form>

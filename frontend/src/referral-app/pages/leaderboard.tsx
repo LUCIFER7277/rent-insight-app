@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useAppStore } from "@/referral-app/lib/store";
 import { useGetLeaderboard } from "@/referral-app/api";
 import { useLocation } from "wouter";

@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useParams, useLocation } from "wouter";
 import { useGetProperty, useAddPropertyReview } from "@/referral-app/api";
 import { Layout } from "@/referral-app/components/layout";
@@ -70,7 +70,7 @@ export default function PgDetailPage() {
   };
 
   const handleShareWhatsApp = () => {
-    const msg = `🏠 Found this great PG in ${property.area}!\n\n*${property.name}*\n📍 ${property.address}\n💰 ₹${property.monthlyRent.toLocaleString()}/month\n\nCheck it out: ${shareLink}`;
+    const msg = `ðŸ  Found this great PG in ${property.area}!\n\n*${property.name}*\nðŸ“ ${property.address}\nðŸ’° â‚¹${property.monthlyRent.toLocaleString()}/month\n\nCheck it out: ${shareLink}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
@@ -99,7 +99,7 @@ export default function PgDetailPage() {
           <div className="bg-gradient-to-br from-slate-100 to-blue-50 h-40 flex items-center justify-center relative">
             <Building2 className="w-20 h-20 text-slate-300" />
             <div className="absolute top-4 right-4 flex gap-2">
-              {property.isVerified && <Badge className="bg-green-500 text-white">✓ Verified</Badge>}
+              {property.isVerified && <Badge className="bg-green-500 text-white">âœ“ Verified</Badge>}
               <Badge className={property.availability === "AVAILABLE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
                 {property.availability === "AVAILABLE" ? `${property.availableRooms} rooms available` : "FULL"}
               </Badge>
@@ -115,12 +115,12 @@ export default function PgDetailPage() {
                   <span>{property.address}</span>
                 </div>
                 {property.nearbyMetro && (
-                  <div className="text-sm text-slate-400 mt-0.5">🚇 {property.nearbyMetro}</div>
+                  <div className="text-sm text-slate-400 mt-0.5">ðŸš‡ {property.nearbyMetro}</div>
                 )}
               </div>
               <div className="text-right">
-                <div className="text-3xl font-black text-slate-900">₹{property.monthlyRent.toLocaleString()}<span className="text-base font-normal text-slate-500">/mo</span></div>
-                <div className="text-sm text-slate-500">Deposit: ₹{property.deposit.toLocaleString()}</div>
+                <div className="text-3xl font-black text-slate-900">â‚¹{property.monthlyRent.toLocaleString()}<span className="text-base font-normal text-slate-500">/mo</span></div>
+                <div className="text-sm text-slate-500">Deposit: â‚¹{property.deposit.toLocaleString()}</div>
               </div>
             </div>
 
@@ -137,10 +137,10 @@ export default function PgDetailPage() {
 
             {property.referralBonus > 0 && (
               <div className="mt-4 bg-orange-50 border border-orange-100 rounded-xl p-3 flex items-center gap-3">
-                <span className="text-2xl">💰</span>
+                <span className="text-2xl">ðŸ’°</span>
                 <div>
-                  <p className="font-bold text-orange-800 text-sm">+₹{property.referralBonus} Referral Bonus</p>
-                  <p className="text-orange-600 text-xs">Earn extra on top of standard ₹500 for successful bookings here</p>
+                  <p className="font-bold text-orange-800 text-sm">+â‚¹{property.referralBonus} Referral Bonus</p>
+                  <p className="text-orange-600 text-xs">Earn extra on top of standard â‚¹500 for successful bookings here</p>
                 </div>
               </div>
             )}
@@ -162,7 +162,7 @@ export default function PgDetailPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {(property.amenities as string[]).map((a: string) => (
                 <div key={a} className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2">
-                  <span className="text-primary">{AMENITY_ICONS[a.toLowerCase()] || "✓"}</span>
+                  <span className="text-primary">{AMENITY_ICONS[a.toLowerCase()] || "âœ“"}</span>
                   <span className="text-sm font-medium text-slate-700">{a}</span>
                 </div>
               ))}
@@ -172,7 +172,7 @@ export default function PgDetailPage() {
 
         {/* Share + Refer */}
         <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5">
-          <h2 className="font-bold text-orange-900 mb-1">Refer this PG, earn ₹{500 + (property.referralBonus || 0)}</h2>
+          <h2 className="font-bold text-orange-900 mb-1">Refer this PG, earn â‚¹{500 + (property.referralBonus || 0)}</h2>
           <p className="text-orange-700 text-sm mb-4">Know someone looking for a PG? Share your link and earn when they move in.</p>
           <div className="flex gap-2">
             <input readOnly value={shareLink} className="flex-1 px-3 py-2 bg-white border border-orange-200 rounded-lg text-sm text-slate-600 truncate" />
@@ -200,7 +200,7 @@ export default function PgDetailPage() {
               <Input placeholder="Your name" value={reviewName} onChange={e => setReviewName(e.target.value)} />
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map(s => (
-                  <button key={s} onClick={() => setReviewRating(s)} className={`text-2xl transition-all ${s <= reviewRating ? "text-yellow-400" : "text-slate-200"}`}>★</button>
+                  <button key={s} onClick={() => setReviewRating(s)} className={`text-2xl transition-all ${s <= reviewRating ? "text-yellow-400" : "text-slate-200"}`}>â˜…</button>
                 ))}
               </div>
               <Textarea placeholder="Share your experience..." value={reviewComment} onChange={e => setReviewComment(e.target.value)} rows={3} />
@@ -220,7 +220,7 @@ export default function PgDetailPage() {
                     <span className="font-medium text-slate-800">{r.reviewerName}</span>
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <span key={i} className={`text-sm ${i < r.rating ? "text-yellow-400" : "text-slate-200"}`}>★</span>
+                        <span key={i} className={`text-sm ${i < r.rating ? "text-yellow-400" : "text-slate-200"}`}>â˜…</span>
                       ))}
                     </div>
                   </div>
@@ -243,7 +243,7 @@ export default function PgDetailPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="font-bold text-slate-800">{p.name}</p>
-                      <p className="text-sm text-slate-500">₹{p.monthlyRent.toLocaleString()}/mo</p>
+                      <p className="text-sm text-slate-500">â‚¹{p.monthlyRent.toLocaleString()}/mo</p>
                     </div>
                     <Badge variant="outline" className={p.availability === "AVAILABLE" ? "text-green-600 border-green-200" : "text-red-500 border-red-200"}>
                       {p.availability === "AVAILABLE" ? "Available" : "Full"}

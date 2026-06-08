@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAdminStore } from "@/referral-app/lib/store";
@@ -52,7 +52,7 @@ export default function AdminLogin() {
             <Input 
               type="password" 
               maxLength={4}
-              placeholder="••••" 
+              placeholder="â€¢â€¢â€¢â€¢" 
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               className="text-center text-3xl tracking-[1em] font-mono h-16 bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-primary focus-visible:border-primary"

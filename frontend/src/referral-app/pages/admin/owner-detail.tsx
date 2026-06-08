@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import { Layout } from "@/referral-app/components/layout";
@@ -112,7 +112,7 @@ export default function AdminOwnerDetailPage() {
                 {owner.name}
               </h1>
               <p className="text-xs text-slate-500">
-                ID: {owner.id} · {properties.length} properties
+                ID: {owner.id} Â· {properties.length} properties
               </p>
             </div>
             <button
@@ -216,10 +216,10 @@ export default function AdminOwnerDetailPage() {
                         )}
                       </div>
                       <p className="text-xs text-slate-500">
-                        {pg.area} · {pg.rooms}
+                        {pg.area} Â· {pg.rooms}
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
-                        S ₹{pg.prices?.single || 0} · D ₹{pg.prices?.double || 0} · T ₹{pg.prices?.triple || 0}
+                        S â‚¹{pg.prices?.single || 0} Â· D â‚¹{pg.prices?.double || 0} Â· T â‚¹{pg.prices?.triple || 0}
                       </p>
                     </div>
                     <button
@@ -242,9 +242,9 @@ export default function AdminOwnerDetailPage() {
                       <Field label="Deposit" value={pgDraft.deposit} onChange={(v) => setPgDraft({ ...pgDraft, deposit: v })} />
                       <Field label="Min stay" value={pgDraft.minStay} onChange={(v) => setPgDraft({ ...pgDraft, minStay: v })} />
                       <Field label="Maps link" value={pgDraft.mapsLink} onChange={(v) => setPgDraft({ ...pgDraft, mapsLink: v })} />
-                      <Field label="Single ₹" value={pgDraft.single} onChange={(v) => setPgDraft({ ...pgDraft, single: v })} />
-                      <Field label="Double ₹" value={pgDraft.double} onChange={(v) => setPgDraft({ ...pgDraft, double: v })} />
-                      <Field label="Triple ₹" value={pgDraft.triple} onChange={(v) => setPgDraft({ ...pgDraft, triple: v })} />
+                      <Field label="Single â‚¹" value={pgDraft.single} onChange={(v) => setPgDraft({ ...pgDraft, single: v })} />
+                      <Field label="Double â‚¹" value={pgDraft.double} onChange={(v) => setPgDraft({ ...pgDraft, double: v })} />
+                      <Field label="Triple â‚¹" value={pgDraft.triple} onChange={(v) => setPgDraft({ ...pgDraft, triple: v })} />
                     </div>
                     <div className="flex gap-2">
                       <button

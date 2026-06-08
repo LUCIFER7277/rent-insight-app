@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/referral-app/lib/store";
 import { useLocation } from "wouter";
@@ -23,7 +23,7 @@ export default function ActivityPage() {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
-  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
   useEffect(() => {
     if (!referrer) { setLocation("/"); return; }
@@ -69,7 +69,7 @@ export default function ActivityPage() {
         {/* Summary */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-green-50 border border-green-100 rounded-2xl p-4 text-center">
-            <p className="text-2xl font-black text-green-600">₹{totalEarned}</p>
+            <p className="text-2xl font-black text-green-600">â‚¹{totalEarned}</p>
             <p className="text-xs text-green-700 font-medium mt-1">Total from activity</p>
           </div>
           <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 text-center">
@@ -99,7 +99,7 @@ export default function ActivityPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-4xl mb-3">📊</p>
+            <p className="text-4xl mb-3">ðŸ“Š</p>
             <p className="font-bold text-slate-600">No activity yet</p>
             <p className="text-sm text-slate-500 mt-1">Start referring to see your activity here</p>
           </div>
@@ -124,7 +124,7 @@ export default function ActivityPage() {
                         <p className="text-xs text-muted-foreground">{new Date(a.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        {a.amount && <p className="font-black text-green-600 text-sm">+₹{a.amount}</p>}
+                        {a.amount && <p className="font-black text-green-600 text-sm">+â‚¹{a.amount}</p>}
                         {a.xp && <p className="font-bold text-orange-500 text-xs">+{a.xp} XP</p>}
                       </div>
                     </motion.div>

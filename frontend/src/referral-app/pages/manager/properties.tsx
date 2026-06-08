@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAppStore } from "@/referral-app/lib/store";
@@ -93,7 +93,7 @@ export default function ManagerPropertiesPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-bold text-slate-900 text-lg">{p.name}</h3>
-                      {p.isVerified && <Badge variant="outline" className="text-green-600 border-green-200 text-[10px]">✓ Verified</Badge>}
+                      {p.isVerified && <Badge variant="outline" className="text-green-600 border-green-200 text-[10px]">âœ“ Verified</Badge>}
                     </div>
                     <div className="flex items-center gap-1 text-slate-500 text-sm">
                       <MapPin className="w-3.5 h-3.5" />
@@ -113,7 +113,7 @@ export default function ManagerPropertiesPage() {
                 <div className="grid grid-cols-3 gap-3 mb-4">
                   <div className="bg-slate-50 rounded-lg p-2.5 text-center">
                     <p className="text-xs text-slate-500 font-medium">Rent</p>
-                    <p className="font-black text-slate-800">₹{p.monthlyRent.toLocaleString()}</p>
+                    <p className="font-black text-slate-800">â‚¹{p.monthlyRent.toLocaleString()}</p>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-2.5 text-center">
                     <p className="text-xs text-slate-500 font-medium">Total Rooms</p>
@@ -136,7 +136,7 @@ export default function ManagerPropertiesPage() {
                   </div>
                   <button onClick={() => setLocation(`/manager/properties/${p.id}/rooms`)}
                     className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-bold hover:bg-primary/20 transition-colors">
-                    Manage rooms →
+                    Manage rooms â†’
                   </button>
                   <button onClick={() => handleToggle(p.id, p.availability)}
                     className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">

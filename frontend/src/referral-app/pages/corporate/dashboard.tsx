@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/referral-app/lib/store";
 import { useLocation } from "wouter";
@@ -11,7 +11,7 @@ export default function CorporateDashboard() {
   const [, setLocation] = useLocation();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
   useEffect(() => {
     if (!referrer) { setLocation("/"); return; }
@@ -114,7 +114,7 @@ export default function CorporateDashboard() {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-green-700 text-sm font-bold uppercase tracking-wide">Company Savings vs. Individual Booking</p>
-              <p className="text-4xl font-black text-green-600 mt-1">₹{d.savingsVsIndividual?.toLocaleString()}</p>
+              <p className="text-4xl font-black text-green-600 mt-1">â‚¹{d.savingsVsIndividual?.toLocaleString()}</p>
               <p className="text-green-600/70 text-xs mt-1">Bulk referral discounts + faster placement</p>
             </div>
             <TrendingUp className="w-12 h-12 text-green-400" />
@@ -160,7 +160,7 @@ export default function CorporateDashboard() {
                   </div>
                   <div className="text-right">
                     <p className="font-black text-sm text-primary">{area.count} employees</p>
-                    <p className="text-xs text-muted-foreground">₹{area.avgRent.toLocaleString()}/mo avg</p>
+                    <p className="text-xs text-muted-foreground">â‚¹{area.avgRent.toLocaleString()}/mo avg</p>
                   </div>
                 </div>
               ))}
@@ -182,7 +182,7 @@ export default function CorporateDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-foreground truncate">{hire.name}</p>
-                  <p className="text-xs text-muted-foreground">{hire.department} · {hire.area}</p>
+                  <p className="text-xs text-muted-foreground">{hire.department} Â· {hire.area}</p>
                 </div>
                 <div className="flex items-center gap-1">
                   {hire.status === "HOUSED"

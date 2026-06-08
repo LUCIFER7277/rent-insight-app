@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useParams, useLocation } from "wouter";
 import { useGetTeam } from "@/referral-app/api";
 import { Layout } from "@/referral-app/components/layout";
@@ -14,7 +14,7 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 const PERSONA_EMOJIS: Record<string, string> = {
-  GUARD: "🛡️", STUDENT: "🎓", EARNER: "💼", PG_MANAGER: "🏠",
+  GUARD: "ðŸ›¡ï¸", STUDENT: "ðŸŽ“", EARNER: "ðŸ’¼", PG_MANAGER: "ðŸ ",
 };
 
 export default function TeamDetailPage() {
@@ -59,7 +59,7 @@ export default function TeamDetailPage() {
             </div>
             <div className="bg-white/70 rounded-xl p-3 text-center">
               <p className="text-xs font-bold text-slate-500 uppercase">Earned</p>
-              <p className="text-2xl font-black text-green-600">₹{team.totalEarned.toLocaleString()}</p>
+              <p className="text-2xl font-black text-green-600">â‚¹{team.totalEarned.toLocaleString()}</p>
             </div>
           </div>
         </motion.div>
@@ -73,7 +73,7 @@ export default function TeamDetailPage() {
               <motion.div key={member.referrerId} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                 className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                 <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl border border-slate-100">
-                  {PERSONA_EMOJIS[member.persona] || "👤"}
+                  {PERSONA_EMOJIS[member.persona] || "ðŸ‘¤"}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">

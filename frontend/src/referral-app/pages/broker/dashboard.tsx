@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/referral-app/lib/store";
 import { useLocation } from "wouter";
@@ -26,7 +26,7 @@ export default function BrokerDashboard() {
   const [, setLocation] = useLocation();
   const [data, setData] = useState<BrokerData | null>(null);
   const [loading, setLoading] = useState(true);
-  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
   useEffect(() => {
     if (!referrer) { setLocation("/"); return; }
@@ -70,7 +70,7 @@ export default function BrokerDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-black font-display">Broker Command</h1>
-            <p className="text-muted-foreground">Professional pipeline · {d.commissionRate}% commission rate</p>
+            <p className="text-muted-foreground">Professional pipeline Â· {d.commissionRate}% commission rate</p>
           </div>
           <button onClick={() => setLocation("/refer")}
             className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 text-sm">
@@ -84,7 +84,7 @@ export default function BrokerDashboard() {
             { label: "Total Leads", value: d.totalLeads, color: "text-foreground", sub: "All time" },
             { label: "Verified", value: d.verified, color: "text-blue-600", sub: `${d.totalLeads ? Math.round(d.verified/d.totalLeads*100) : 0}% rate` },
             { label: "Booked", value: d.booked, color: "text-green-600", sub: `${d.conversionRate}% close rate` },
-            { label: "Commission", value: `₹${d.totalEarned.toLocaleString()}`, color: "text-primary", sub: "Total earned" },
+            { label: "Commission", value: `â‚¹${d.totalEarned.toLocaleString()}`, color: "text-primary", sub: "Total earned" },
           ].map((k, i) => (
             <motion.div key={k.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
               className="bg-card border border-border rounded-2xl p-4">
@@ -101,15 +101,15 @@ export default function BrokerDashboard() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <p className="text-white/60 text-xs mb-1">Total Earned</p>
-              <p className="text-3xl font-black text-green-400">₹{d.totalEarned.toLocaleString()}</p>
+              <p className="text-3xl font-black text-green-400">â‚¹{d.totalEarned.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-white/60 text-xs mb-1">Pending</p>
-              <p className="text-3xl font-black text-orange-400">₹{d.pendingEarnings.toLocaleString()}</p>
+              <p className="text-3xl font-black text-orange-400">â‚¹{d.pendingEarnings.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-white/60 text-xs mb-1">Proj. Monthly</p>
-              <p className="text-3xl font-black text-blue-400">₹{d.projectedMonthly.toLocaleString()}</p>
+              <p className="text-3xl font-black text-blue-400">â‚¹{d.projectedMonthly.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -153,10 +153,10 @@ export default function BrokerDashboard() {
               <div key={area.area} className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
                 <div>
                   <p className="font-bold text-sm text-foreground">{area.area}</p>
-                  <p className="text-xs text-muted-foreground">{area.leads} leads · {area.bookings} bookings</p>
+                  <p className="text-xs text-muted-foreground">{area.leads} leads Â· {area.bookings} bookings</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-black text-sm text-primary">₹{(area.bookings * 500).toLocaleString()}</p>
+                  <p className="font-black text-sm text-primary">â‚¹{(area.bookings * 500).toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">{area.leads ? Math.round(area.bookings/area.leads*100) : 0}% CVR</p>
                 </div>
               </div>
@@ -167,10 +167,10 @@ export default function BrokerDashboard() {
         {/* Quick actions */}
         <div className="grid grid-cols-2 gap-3">
           {[
-            { label: "Browse PGs", sub: "Find new inventory", icon: "🏠", href: "/pg" },
-            { label: "Leaderboard", sub: "Your broker rank", icon: "🏆", href: "/leaderboard" },
-            { label: "Flash Deals", sub: "High bonus PGs", icon: "⚡", href: "/flash" },
-            { label: "Calculator", sub: "Project earnings", icon: "🧮", href: "/calculator" },
+            { label: "Browse PGs", sub: "Find new inventory", icon: "ðŸ ", href: "/pg" },
+            { label: "Leaderboard", sub: "Your broker rank", icon: "ðŸ†", href: "/leaderboard" },
+            { label: "Flash Deals", sub: "High bonus PGs", icon: "âš¡", href: "/flash" },
+            { label: "Calculator", sub: "Project earnings", icon: "ðŸ§®", href: "/calculator" },
           ].map(a => (
             <button key={a.label} onClick={() => setLocation(a.href)}
               className="flex items-center gap-3 p-4 bg-card border border-border rounded-2xl hover:border-primary/30 hover:shadow-sm transition-all text-left">

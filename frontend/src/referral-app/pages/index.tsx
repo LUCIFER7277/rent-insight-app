@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useAppStore } from "@/referral-app/lib/store";
 import { PersonaSelector } from "@/referral-app/components/persona-selector";
 import { useLocation } from "wouter";

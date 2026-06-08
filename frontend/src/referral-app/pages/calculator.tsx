@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState } from "react";
 import { useCalculateEarnings } from "@/referral-app/api";
 import { Layout } from "@/referral-app/components/layout";
@@ -77,13 +77,13 @@ export default function CalculatorPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-green-50 border border-green-100 rounded-2xl p-5">
                 <p className="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">Weekly Earnings</p>
-                <p className="text-4xl font-black text-green-700">₹{data.totalEarnings.toLocaleString()}</p>
-                <p className="text-sm text-green-600 mt-1">{data.verifiedCount} verified · {data.bookedCount} booked</p>
+                <p className="text-4xl font-black text-green-700">â‚¹{data.totalEarnings.toLocaleString()}</p>
+                <p className="text-sm text-green-600 mt-1">{data.verifiedCount} verified Â· {data.bookedCount} booked</p>
               </div>
               <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5">
                 <p className="text-xs font-bold text-orange-600 uppercase tracking-wider mb-2">Monthly Projection</p>
-                <p className="text-4xl font-black text-orange-700">₹{data.monthlyProjection.toLocaleString()}</p>
-                <p className="text-sm text-orange-600 mt-1">4 weeks × ₹{data.totalEarnings.toLocaleString()}</p>
+                <p className="text-4xl font-black text-orange-700">â‚¹{data.monthlyProjection.toLocaleString()}</p>
+                <p className="text-sm text-orange-600 mt-1">4 weeks Ã— â‚¹{data.totalEarnings.toLocaleString()}</p>
               </div>
             </div>
 
@@ -91,17 +91,17 @@ export default function CalculatorPage() {
               <h3 className="font-bold text-slate-900 mb-4">Breakdown</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600 text-sm">Verification bonus (₹50 × {data.verifiedCount})</span>
-                  <span className="font-bold text-slate-800">₹{data.verificationEarnings}</span>
+                  <span className="text-slate-600 text-sm">Verification bonus (â‚¹50 Ã— {data.verifiedCount})</span>
+                  <span className="font-bold text-slate-800">â‚¹{data.verificationEarnings}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600 text-sm">Booking bonus (₹500 × {data.bookedCount})</span>
-                  <span className="font-bold text-slate-800">₹{data.bookingEarnings}</span>
+                  <span className="text-slate-600 text-sm">Booking bonus (â‚¹500 Ã— {data.bookedCount})</span>
+                  <span className="font-bold text-slate-800">â‚¹{data.bookingEarnings}</span>
                 </div>
                 <div className="h-px bg-slate-100" />
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-slate-800">Total weekly</span>
-                  <span className="font-black text-primary">₹{data.totalEarnings}</span>
+                  <span className="font-black text-primary">â‚¹{data.totalEarnings}</span>
                 </div>
               </div>
             </div>
@@ -117,7 +117,7 @@ export default function CalculatorPage() {
                 </div>
                 {levelInfo && (
                   <div className={`px-4 py-2 rounded-xl ${levelInfo.color} font-bold text-sm`}>
-                    🏆 {levelInfo.label}
+                    ðŸ† {levelInfo.label}
                   </div>
                 )}
               </div>
@@ -127,7 +127,7 @@ export default function CalculatorPage() {
               <h3 className="font-bold mb-3 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-green-400" /> Annual earnings
               </h3>
-              <p className="text-5xl font-black text-green-400">₹{(data.monthlyProjection * 12).toLocaleString()}</p>
+              <p className="text-5xl font-black text-green-400">â‚¹{(data.monthlyProjection * 12).toLocaleString()}</p>
               <p className="text-slate-400 text-sm mt-2">Assuming consistent weekly performance</p>
             </div>
 
@@ -135,7 +135,7 @@ export default function CalculatorPage() {
               <p className="font-bold text-lg mb-2">Ready to start earning?</p>
               <p className="text-sm text-orange-100 mb-4">Join thousands earning from PG referrals in Bangalore</p>
               <a href="/register" className="block bg-white text-orange-600 font-bold py-3 rounded-xl hover:bg-orange-50 transition-colors">
-                Register Now →
+                Register Now â†’
               </a>
             </div>
           </motion.div>

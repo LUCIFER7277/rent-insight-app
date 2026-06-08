@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useAppStore, useAdminStore } from "@/referral-app/lib/store";
 import { useGetManagerStats, useGetManagerProperties, useGetAdminNotifications } from "@/referral-app/api";
 import { Layout } from "@/referral-app/components/layout";
@@ -96,10 +96,10 @@ export default function AdminDashPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
           {[
-            { label: "Monthly Revenue", value: `₹${s.monthlyRevenue.toLocaleString()}`, icon: "💰", color: "bg-green-50 border-green-100" },
-            { label: "Total Leads", value: s.totalLeadsReceived, icon: "📥", color: "bg-orange-50 border-orange-100" },
-            { label: "Total Bookings", value: s.totalBookings, icon: "🏠", color: "bg-purple-50 border-purple-100" },
-            { label: "Referral Earnings", value: `₹${s.referralEarnings.toLocaleString()}`, icon: "🤝", color: "bg-yellow-50 border-yellow-100" },
+            { label: "Monthly Revenue", value: `â‚¹${s.monthlyRevenue.toLocaleString()}`, icon: "ðŸ’°", color: "bg-green-50 border-green-100" },
+            { label: "Total Leads", value: s.totalLeadsReceived, icon: "ðŸ“¥", color: "bg-orange-50 border-orange-100" },
+            { label: "Total Bookings", value: s.totalBookings, icon: "ðŸ ", color: "bg-purple-50 border-purple-100" },
+            { label: "Referral Earnings", value: `â‚¹${s.referralEarnings.toLocaleString()}`, icon: "ðŸ¤", color: "bg-yellow-50 border-yellow-100" },
           ].map((item, i) => (
             <motion.div key={item.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
               className={`${item.color} border rounded-2xl p-4`}>
@@ -137,7 +137,7 @@ export default function AdminDashPage() {
                 <div key={p.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                   <div>
                     <p className="font-bold text-slate-800">{p.name}</p>
-                    <p className="text-sm text-slate-500">{p.area} · ₹{p.monthlyRent.toLocaleString()}/mo</p>
+                    <p className="text-sm text-slate-500">{p.area} Â· â‚¹{p.monthlyRent.toLocaleString()}/mo</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-1 rounded-lg text-xs font-bold ${p.availability === "AVAILABLE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>

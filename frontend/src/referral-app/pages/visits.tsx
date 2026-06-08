@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/referral-app/lib/store";
 import { useLocation } from "wouter";
@@ -31,7 +31,7 @@ export default function VisitsPage() {
     propertyId: 1, propertyName: "Sunrise PG Koramangala",
     visitorName: "", visitorPhone: "", scheduledAt: "", notes: "",
   });
-  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
   useEffect(() => {
     if (!referrer) { setLocation("/"); return; }
@@ -52,7 +52,7 @@ export default function VisitsPage() {
         const visit = await res.json();
         setVisits(prev => [visit, ...prev]);
         setShowForm(false);
-        toast({ title: "✅ Visit Scheduled!", description: `Visit booked for ${new Date(form.scheduledAt).toLocaleDateString()}` });
+        toast({ title: "âœ… Visit Scheduled!", description: `Visit booked for ${new Date(form.scheduledAt).toLocaleDateString()}` });
         setForm({ propertyId: 1, propertyName: "Sunrise PG Koramangala", visitorName: "", visitorPhone: "", scheduledAt: "", notes: "" });
       }
     } finally {
@@ -113,7 +113,7 @@ export default function VisitsPage() {
               exit={{ opacity: 0, y: -10, height: 0 }}
               className="bg-card border border-border rounded-2xl p-5 space-y-4 overflow-hidden"
             >
-              <h3 className="font-bold text-foreground">📅 Schedule a Visit</h3>
+              <h3 className="font-bold text-foreground">ðŸ“… Schedule a Visit</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block">Select PG</label>
@@ -156,7 +156,7 @@ export default function VisitsPage() {
               </div>
               <button onClick={handleBook} disabled={!form.visitorName || !form.scheduledAt || submitting}
                 className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50">
-                {submitting ? "Booking..." : "📅 Confirm Visit"}
+                {submitting ? "Booking..." : "ðŸ“… Confirm Visit"}
               </button>
             </motion.div>
           )}
@@ -167,7 +167,7 @@ export default function VisitsPage() {
           <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-24 bg-muted rounded-2xl animate-pulse" />)}</div>
         ) : visits.length === 0 ? (
           <div className="text-center py-12 bg-card border border-border rounded-2xl">
-            <p className="text-5xl mb-4">🏠</p>
+            <p className="text-5xl mb-4">ðŸ </p>
             <p className="font-bold text-foreground">No visits scheduled</p>
             <p className="text-sm text-muted-foreground mt-1">Book a PG site visit for your referrals</p>
           </div>
@@ -185,7 +185,7 @@ export default function VisitsPage() {
                     </div>
                     <div>
                       <p className="font-black text-foreground">{visit.propertyName}</p>
-                      <p className="text-sm text-muted-foreground">{visit.visitorName} · {visit.visitorPhone}</p>
+                      <p className="text-sm text-muted-foreground">{visit.visitorName} Â· {visit.visitorPhone}</p>
                     </div>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full border font-bold ${statusColor(visit.status)}`}>

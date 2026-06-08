@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useAppStore } from "@/referral-app/lib/store";
 import { useGetReferrerDashboard, useGetReferrerReferrals } from "@/referral-app/api";
 import { useLocation } from "wouter";
@@ -93,7 +93,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-black font-display text-foreground mb-1">{dashboard.referrer.name}</h1>
-            <p className="text-muted-foreground font-medium mb-1">{dashboard.referrer.phone} · {persona}</p>
+            <p className="text-muted-foreground font-medium mb-1">{dashboard.referrer.phone} Â· {persona}</p>
             <div className="flex items-center gap-2 mb-4">
               <span className="font-mono text-xs bg-muted px-2 py-1 rounded-md text-slate-600">REF: {referrer.referralCode}</span>
               <button onClick={handleCopyLink} className="flex items-center gap-1 text-xs text-primary hover:underline font-medium">
@@ -112,7 +112,7 @@ export default function ProfilePage() {
               </div>
               <div className="bg-muted px-4 py-2 rounded-xl">
                 <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-1">Total Earned</p>
-                <p className="text-xl font-black text-green-600">₹{dashboard.referrer.totalEarned}</p>
+                <p className="text-xl font-black text-green-600">â‚¹{dashboard.referrer.totalEarned}</p>
               </div>
             </div>
           </div>

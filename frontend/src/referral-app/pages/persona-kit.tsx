@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { Link, useRoute } from "wouter";
 import { PERSONA_BY_ID } from "@/lib/personas";
 import { ArrowLeft, MessageCircle, Copy } from "lucide-react";
@@ -9,9 +9,9 @@ export default function PersonaKitPage() {
   if (!persona) return <div className="p-8 text-white">Persona not found.</div>;
 
   const opener = persona.whatsappOpener;
-  const followUp = `Quick check · did you get a chance to chat with the expert about ${persona.bestAreas[0]}? Happy to send 2 more options if helpful.`;
-  const objection = `If they say "but brokers ask 1 month deposit" → reply: "Gharpayy caps deposit at 2 months and the expert handles paperwork. Send me the building name, I'll get you the verified rate."`;
-  const voiceNote = `Hi, I'm sharing this from my friend who just moved to ${persona.bestAreas[0]} via Gharpayy. ${persona.storyQuote} · talk to the expert, no pressure.`;
+  const followUp = `Quick check Â· did you get a chance to chat with the expert about ${persona.bestAreas[0]}? Happy to send 2 more options if helpful.`;
+  const objection = `If they say "but brokers ask 1 month deposit" â†’ reply: "Gharpayy caps deposit at 2 months and the expert handles paperwork. Send me the building name, I'll get you the verified rate."`;
+  const voiceNote = `Hi, I'm sharing this from my friend who just moved to ${persona.bestAreas[0]} via Gharpayy. ${persona.storyQuote} Â· talk to the expert, no pressure.`;
 
   const copy = (s: string) => navigator.clipboard.writeText(s);
 
@@ -23,7 +23,7 @@ export default function PersonaKitPage() {
         </Link>
         <div>
           <div className="text-3xl">{persona.emoji}</div>
-          <h1 className="text-2xl font-black">{persona.title} · outreach kit</h1>
+          <h1 className="text-2xl font-black">{persona.title} Â· outreach kit</h1>
           <p className="text-sm text-slate-400 mt-1">{persona.short}</p>
           <p className="text-xs text-slate-500 italic mt-1">"{persona.storyQuote}"</p>
         </div>
@@ -35,9 +35,9 @@ export default function PersonaKitPage() {
 
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
           <div className="text-xs font-bold text-orange-400 uppercase tracking-wider">Best areas</div>
-          <div className="text-sm text-slate-300 mt-1">{persona.bestAreas.slice(0, 5).join(" · ")}</div>
+          <div className="text-sm text-slate-300 mt-1">{persona.bestAreas.slice(0, 5).join(" Â· ")}</div>
           <div className="text-xs font-bold text-orange-400 uppercase tracking-wider mt-3">Budget</div>
-          <div className="text-sm text-slate-300 mt-1">₹{persona.budget[0].toLocaleString()} – ₹{persona.budget[1].toLocaleString()}</div>
+          <div className="text-sm text-slate-300 mt-1">â‚¹{persona.budget[0].toLocaleString()} â€“ â‚¹{persona.budget[1].toLocaleString()}</div>
         </div>
       </div>
     </div>

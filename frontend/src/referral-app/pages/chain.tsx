@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/referral-app/lib/store";
 import { useLocation } from "wouter";
@@ -20,7 +20,7 @@ export default function ChainPage() {
   const { toast } = useToast();
   const [data, setData] = useState<ChainData | null>(null);
   const [loading, setLoading] = useState(true);
-  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
   useEffect(() => {
     if (!referrer) { setLocation("/"); return; }
@@ -34,7 +34,7 @@ export default function ChainPage() {
     PENDING: "bg-orange-100 text-orange-700 border-orange-200",
   }[s] || "bg-slate-100 text-slate-600");
 
-  const statusIcon = (s: string) => ({ BOOKED: "🏠", VERIFIED: "✅", PENDING: "⏳" }[s] || "·");
+  const statusIcon = (s: string) => ({ BOOKED: "ðŸ ", VERIFIED: "âœ…", PENDING: "â³" }[s] || "Â·");
 
   const handleShare = async () => {
     if (!referrer) return;
@@ -47,7 +47,7 @@ export default function ChainPage() {
 
   return (
     <Layout>
-      <PageHeader title="Referral Chain" subtitle="Your network tree · everyone you've brought in" />
+      <PageHeader title="Referral Chain" subtitle="Your network tree Â· everyone you've brought in" />
       <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -89,11 +89,11 @@ export default function ChainPage() {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm font-bold text-orange-700 uppercase tracking-wide">Total Chain Earnings</p>
-              <p className="text-4xl font-black text-orange-600 mt-1">₹{data?.stats.totalChainEarnings?.toLocaleString() || 0}</p>
+              <p className="text-4xl font-black text-orange-600 mt-1">â‚¹{data?.stats.totalChainEarnings?.toLocaleString() || 0}</p>
             </div>
-            <div className="text-4xl">💰</div>
+            <div className="text-4xl">ðŸ’°</div>
           </div>
-          <p className="text-xs text-orange-600 mt-3">₹50 per verification + ₹500 per booking</p>
+          <p className="text-xs text-orange-600 mt-3">â‚¹50 per verification + â‚¹500 per booking</p>
         </div>
 
         {/* Root node - you */}
@@ -104,10 +104,10 @@ export default function ChainPage() {
             </div>
             <div className="flex-1">
               <p className="font-black text-lg">{data?.root.name || referrer.name}</p>
-              <p className="text-white/70 text-sm">You · {data?.root.level || "BEGINNER"} · {data?.root.xp || 0} XP</p>
+              <p className="text-white/70 text-sm">You Â· {data?.root.level || "BEGINNER"} Â· {data?.root.xp || 0} XP</p>
             </div>
             <div className="text-right">
-              <p className="font-black text-xl">₹{data?.root.totalEarned?.toLocaleString() || 0}</p>
+              <p className="font-black text-xl">â‚¹{data?.root.totalEarned?.toLocaleString() || 0}</p>
               <p className="text-white/70 text-xs">Total earned</p>
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function ChainPage() {
         {/* Direct referrals tree */}
         {(data?.directReferrals.length || 0) === 0 && !loading ? (
           <div className="text-center py-8 bg-card border border-border rounded-2xl">
-            <p className="text-4xl mb-3">🌱</p>
+            <p className="text-4xl mb-3">ðŸŒ±</p>
             <p className="font-bold text-slate-600">Your chain is empty</p>
             <p className="text-sm text-slate-500 mt-1">Start referring people to grow your network</p>
             <button onClick={handleShare}
@@ -146,10 +146,10 @@ export default function ChainPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-foreground truncate">{person.name}</p>
-                  <p className="text-xs text-muted-foreground">{person.area} · {new Date(person.joinedAt).toLocaleDateString()}</p>
+                  <p className="text-xs text-muted-foreground">{person.area} Â· {new Date(person.joinedAt).toLocaleDateString()}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {person.earned > 0 && <span className="text-xs font-bold text-green-600">+₹{person.earned}</span>}
+                  {person.earned > 0 && <span className="text-xs font-bold text-green-600">+â‚¹{person.earned}</span>}
                   <span className={`text-xs px-2 py-0.5 rounded-full border font-bold ${statusColor(person.status)}`}>
                     {statusIcon(person.status)} {person.status}
                   </span>

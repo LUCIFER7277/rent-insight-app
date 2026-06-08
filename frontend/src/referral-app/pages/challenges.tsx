@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useGetChallenges, useCompleteChallenge } from "@/referral-app/api";
 import { Layout } from "@/referral-app/components/layout";
 import { useAppStore } from "@/referral-app/lib/store";
@@ -25,8 +25,8 @@ export default function ChallengesPage() {
     try {
       const result = await complete.mutateAsync({ challengeId, data: { referrerId: referrer.id } });
       toast({
-        title: `+${result.xpEarned} XP earned! 🎉`,
-        description: result.bonusEarned > 0 ? `Also got ₹${result.bonusEarned} bonus!` : "Challenge complete!",
+        title: `+${result.xpEarned} XP earned! ðŸŽ‰`,
+        description: result.bonusEarned > 0 ? `Also got â‚¹${result.bonusEarned} bonus!` : "Challenge complete!",
       });
       refetch();
     } catch (e: any) {
@@ -92,7 +92,7 @@ export default function ChallengesPage() {
                             <Zap className="w-3.5 h-3.5" /> +{c.xpReward} XP
                           </span>
                           {c.bonusAmount > 0 && (
-                            <span className="text-sm font-bold text-green-600">+₹{c.bonusAmount}</span>
+                            <span className="text-sm font-bold text-green-600">+â‚¹{c.bonusAmount}</span>
                           )}
                           {c.expiresAt && (
                             <span className="flex items-center gap-1 text-xs text-slate-400">

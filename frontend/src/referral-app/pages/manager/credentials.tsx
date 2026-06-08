@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Layout } from "@/referral-app/components/layout";
@@ -160,7 +160,7 @@ function CredentialRow({ o, globalReveal }: { o: any; globalReveal: boolean }) {
         <div className="text-xs text-slate-400">{o.id}</div>
       </TableCell>
       <TableCell className="text-xs">{o.role}</TableCell>
-      <TableCell className="text-xs">{o.phone || "—"}</TableCell>
+      <TableCell className="text-xs">{o.phone || "â€”"}</TableCell>
       <TableCell>
         <div className="flex items-center gap-1">
           <code className="text-xs">{o.username}</code>
@@ -172,7 +172,7 @@ function CredentialRow({ o, globalReveal }: { o: any; globalReveal: boolean }) {
       <TableCell>
         <div className="flex items-center gap-1">
           <code className="text-xs w-20 inline-block">
-            {isRevealed ? o.password : "••••••••"}
+            {isRevealed ? o.password : "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"}
           </code>
           <button onClick={() => setLocalReveal(r => !r)} className="p-1 hover:bg-slate-100 rounded" title={isRevealed ? "Hide" : "Reveal"}>
             {isRevealed ? <EyeOff className="w-3 h-3 text-slate-400" /> : <Eye className="w-3 h-3 text-slate-400" />}

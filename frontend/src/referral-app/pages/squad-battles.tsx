@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/referral-app/lib/store";
 import { useLocation } from "wouter";
@@ -34,7 +34,7 @@ export default function SquadBattlesPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ challengerTeamId: 1, defenderTeamId: 2, metric: "referrals", prizeXp: 500, durationHours: 24 });
 
-  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
   useEffect(() => {
     if (!referrer) { setLocation("/"); return; }
@@ -62,7 +62,7 @@ export default function SquadBattlesPage() {
         const battle = await res.json();
         setBattles(prev => [battle, ...prev]);
         setShowCreate(false);
-        toast({ title: "⚔️ Battle Started!", description: "Challenge has been sent to the opposing team!" });
+        toast({ title: "âš”ï¸ Battle Started!", description: "Challenge has been sent to the opposing team!" });
       }
     } finally {
       setCreating(false);
@@ -81,7 +81,7 @@ export default function SquadBattlesPage() {
 
   return (
     <Layout>
-      <PageHeader title="Squad Battles" subtitle="Challenge other teams · winner takes all XP & cash" />
+      <PageHeader title="Squad Battles" subtitle="Challenge other teams Â· winner takes all XP & cash" />
       <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -104,7 +104,7 @@ export default function SquadBattlesPage() {
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
             className="bg-card border border-border rounded-2xl p-5 space-y-4"
           >
-            <h3 className="font-bold text-foreground">⚔️ Challenge a Team</h3>
+            <h3 className="font-bold text-foreground">âš”ï¸ Challenge a Team</h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block">Your Team</label>
@@ -146,7 +146,7 @@ export default function SquadBattlesPage() {
             </div>
             <button onClick={handleCreateBattle} disabled={creating}
               className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50">
-              {creating ? "Starting..." : "⚔️ Start Battle!"}
+              {creating ? "Starting..." : "âš”ï¸ Start Battle!"}
             </button>
           </motion.div>
         )}
@@ -228,12 +228,12 @@ export default function SquadBattlesPage() {
                     {battle.challengerTeamName} vs {battle.defenderTeamName}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {battle.challengerScore} – {battle.defenderScore}
+                    {battle.challengerScore} â€“ {battle.defenderScore}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-bold text-orange-600">
-                    🏆 {battle.winnerTeamId === battle.challengerTeamId ? battle.challengerTeamName : battle.defenderTeamName} wins
+                    ðŸ† {battle.winnerTeamId === battle.challengerTeamId ? battle.challengerTeamName : battle.defenderTeamName} wins
                   </p>
                   <p className="text-xs text-muted-foreground">+{battle.prizeXp} XP</p>
                 </div>

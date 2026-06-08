@@ -4,7 +4,8 @@ export function LiveDataBadge() {
   const [state, setState] = useState<{ ok: boolean; source: string; freshAt: number } | null>(null);
   useEffect(() => {
     let cancel = false;
-    fetch("/api/public/insights/json")
+    const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
+    fetch(`${BASE}/api/public/insights/json`)
       .then((r) => r.json())
       .then((d) => { if (!cancel) setState({ ok: true, source: d.source, freshAt: d.freshAt }); })
       .catch(() => { if (!cancel) setState({ ok: false, source: "offline", freshAt: 0 }); });
