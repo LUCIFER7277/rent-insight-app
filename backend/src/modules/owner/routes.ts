@@ -743,7 +743,96 @@ export function registerOwnerRoutes(app: FastifyInstance) {
     return reply.send({ success: true, data: propertiesWithLiveStats });
   });
 
+  // ---------- OWNER STATS (occupancy, bed counts) ----------
+  // Returns bed-based occupancy for the owner overall and per property.
+  // Matches the rooms page KPI formula: occupiedBeds / totalBeds * 100
+  app.get("/api/v1/owner/stats", { preHandler: [requireAuth] }, async (req, reply) => {
+    const userId = req.user!.sub;
+    const propertiesCol = col<any>("properties");
+    const roomsCol = col<any>("rooms");
+    const roomStatusesCol = col<any>("room_statuses");
+
+    const ownerProps = await propertiesCol.find({ ownerId: userId }).toArray();
+    const propIds = ownerProps.map((p: any) => p.customId || p._id);
+
+    // Guard: no properties → return zero stats immediately
+    if (propIds.length === 0) {
+      return reply.send({
+        success: true,
+        data: {
+          overall: { totalProperties: 0, totalBeds: 0, occupiedBeds: 0, vacantBeds: 0, blockedBeds: 0, occupancyPct: 0 },
+          properties: [],
+        },
+      });
+    }
+
+    const allRooms = await roomsCol.find({ propertyId: { $in: propIds } }).toArray();
+    const roomIds = allRooms.map((r: any) => r.customId || r._id);
+    const allStatuses = roomIds.length > 0
+      ? await roomStatusesCol.find({ roomId: { $in: roomIds } }).toArray()
+      : [];
+
+
+    // Build per-property stats (bed-based)
+    let overallTotalBeds = 0;
+    let overallOccupiedBeds = 0;
+    let overallVacantBeds = 0;
+    let overallBlockedBeds = 0;
+
+    const propertyStats = ownerProps.map((p: any) => {
+      const propId = p.customId || p._id;
+      const propRooms = allRooms.filter((r: any) => r.propertyId === propId);
+
+      let totalBeds = 0, occupiedBeds = 0, vacantBeds = 0, blockedBeds = 0;
+
+      propRooms.forEach((room: any) => {
+        const roomId = room.customId || room._id;
+        const beds = room.bedsTotal || 1;
+        const s = allStatuses.find((stat: any) => stat.roomId === roomId);
+        const kind = s?.kind || "vacant";
+
+        totalBeds += beds;
+        if (s?.lockedUnsellable || kind === "blocked") blockedBeds += beds;
+        else if (kind === "vacant" || kind === "vacating") vacantBeds += beds;
+        else occupiedBeds += beds; // "occupied"
+      });
+
+      overallTotalBeds += totalBeds;
+      overallOccupiedBeds += occupiedBeds;
+      overallVacantBeds += vacantBeds;
+      overallBlockedBeds += blockedBeds;
+
+      return {
+        propertyId: propId,
+        propertyName: p.name,
+        totalBeds,
+        occupiedBeds,
+        vacantBeds,
+        blockedBeds,
+        occupancyPct: totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0,
+      };
+    });
+
+    return reply.send({
+      success: true,
+      data: {
+        overall: {
+          totalProperties: ownerProps.length,
+          totalBeds: overallTotalBeds,
+          occupiedBeds: overallOccupiedBeds,
+          vacantBeds: overallVacantBeds,
+          blockedBeds: overallBlockedBeds,
+          occupancyPct: overallTotalBeds > 0
+            ? Math.round((overallOccupiedBeds / overallTotalBeds) * 100)
+            : 0,
+        },
+        properties: propertyStats,
+      },
+    });
+  });
+
   // ---------- OWNER ROOMS ----------
+
   app.get("/api/v1/owner/rooms", { preHandler: [requireAuth] }, async (req, reply) => {
     const userId = req.user!.sub;
     const propertiesCol = col<any>("properties");

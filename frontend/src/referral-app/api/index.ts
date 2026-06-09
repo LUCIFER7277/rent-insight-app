@@ -909,7 +909,7 @@ export function useOwnerLogin() {
 
 export function useGetRealOwnerProperties(token: string | null) {
   return useQuery({
-    queryKey: ["owner", "properties"],
+    queryKey: ["owner", "properties", token],  // include token so different owners never share cache
     queryFn: async () => {
       if (!token) return [];
       const res = await fetch(`${getBackendUrl()}/api/v1/owner/properties`, {
@@ -933,9 +933,43 @@ export function useGetRealOwnerProperties(token: string | null) {
   });
 }
 
+export function useGetOwnerStats(token: string | null) {
+  return useQuery({
+    queryKey: ["owner", "stats", token],   // include token so different owners never share cache
+    queryFn: async () => {
+      if (!token) return null;
+      const res = await fetch(`${getBackendUrl()}/api/v1/owner/stats`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch owner stats");
+      return data.data as {
+        overall: {
+          totalProperties: number;
+          totalBeds: number;
+          occupiedBeds: number;
+          vacantBeds: number;
+          blockedBeds: number;
+          occupancyPct: number;
+        };
+        properties: Array<{
+          propertyId: string;
+          propertyName: string;
+          totalBeds: number;
+          occupiedBeds: number;
+          vacantBeds: number;
+          blockedBeds: number;
+          occupancyPct: number;
+        }>;
+      };
+    },
+    enabled: !!token
+  });
+}
+
 export function useGetRealOwnerRooms(token: string | null) {
   return useQuery({
-    queryKey: ["owner", "rooms"],
+    queryKey: ["owner", "rooms", token],  // include token so different owners never share cache
     queryFn: async () => {
       if (!token) return { rooms: [], roomStatuses: [], roomMedia: [] };
       const res = await fetch(`${getBackendUrl()}/api/v1/owner/rooms`, {
