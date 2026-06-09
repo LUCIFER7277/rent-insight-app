@@ -176,13 +176,49 @@ export function registerPropertyRoutes(app: FastifyInstance) {
         createdAt: now,
         updatedAt: now,
         zoneId: "z-custom",
-        totalBeds: 1,
-        vacantBeds: 1,
+        totalBeds: Number(body.totalRooms ?? 1),
+        vacantBeds: Number(body.availableRooms ?? body.totalRooms ?? 1),
         pricePerBed: Number(body.basePrice ?? body.rentPrice ?? 0),
       };
       
       await properties().insertOne(doc);
       
+      // ── Create placeholder room records so GET live-count reflects the numbers ──
+      const totalRooms = Math.max(0, Number(body.totalRooms ?? 0));
+      const availableRooms = Math.min(Math.max(0, Number(body.availableRooms ?? 0)), totalRooms);
+      const basePrice = Number(body.basePrice ?? body.rentPrice ?? 0);
+
+      if (totalRooms > 0) {
+        const roomsCol = col<any>("rooms");
+        const roomStatusesCol = col<any>("room_statuses");
+
+        for (let i = 0; i < totalRooms; i++) {
+          const roomId = `room-${customId}-${i + 1}`;
+          // First `availableRooms` rooms are vacant, the rest are occupied
+          const kind = i < availableRooms ? "vacant" : "occupied";
+
+          await roomsCol.insertOne({
+            _id: roomId,
+            customId: roomId,
+            propertyId: customId,
+            type: `Room ${i + 1}`,
+            bedsTotal: 1,
+            currentPrice: basePrice,
+            createdAt: now,
+          });
+
+          await roomStatusesCol.insertOne({
+            _id: `status-${roomId}`,
+            roomId,
+            kind,
+            expectedRent: basePrice,
+            actualRent: kind === "occupied" ? basePrice : 0,
+            floorPrice: basePrice,
+            updatedAt: now,
+          });
+        }
+      }
+
       // Update owner's database document inside "users" collection
       await col("users").updateOne(
         { _id: req.user!.sub },
@@ -201,12 +237,13 @@ export function registerPropertyRoutes(app: FastifyInstance) {
         createdAt: now,
       });
 
-      return reply.code(201).send(doc);
+      return reply.code(201).send({ ...doc, totalRooms, availableRooms });
     } catch (e) {
       const err = e as Error;
       return reply.code(400).send({ code: "BAD_REQUEST", message: err.message });
     }
   });
+
 
   // Update property as Owner
   app.put("/api/v1/owner/properties/:id", { preHandler: [requireAuth] }, async (req, reply) => {

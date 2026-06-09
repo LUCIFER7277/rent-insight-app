@@ -567,8 +567,10 @@ export function useAddRealOwnerProperty() {
       if (!res.ok) throw new Error(json.message || "Failed to add property");
       return json;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["owner", "properties"] });
+    onSuccess: (_data, variables) => {
+      // Invalidate all owner queries scoped to this token
+      queryClient.invalidateQueries({ queryKey: ["owner", "properties", variables.token] });
+      queryClient.invalidateQueries({ queryKey: ["owner", "stats", variables.token] });
     }
   });
 }
