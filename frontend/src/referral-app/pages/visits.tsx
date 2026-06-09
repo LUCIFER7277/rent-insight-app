@@ -1,210 +1,342 @@
-﻿// @ts-nocheck
-import { useState, useEffect } from "react";
-import { useAppStore } from "@/referral-app/lib/store";
-import { useLocation } from "wouter";
+// @ts-nocheck
+import { useState, useEffect, useCallback } from "react";
+import { useOwnerStore } from "@/referral-app/lib/store";
 import { Layout } from "@/referral-app/components/layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/referral-app/hooks/use-toast";
-import { Calendar, MapPin, Clock, CheckCircle2, XCircle, Plus, Building2 } from "lucide-react";
-import { PageHeader } from "@/referral-app/components/page-header";
+import {
+  Calendar, Clock, Building2, User, Phone, CheckCircle2,
+  RefreshCw, Video, Home, MessageSquare, AlertCircle, ChevronDown, ChevronUp
+} from "lucide-react";
+import { cn } from "@/referral-app/lib/utils";
 
-interface Visit {
-  id: number;
-  propertyId: number;
-  propertyName: string;
-  visitorName: string;
-  visitorPhone: string;
-  scheduledAt: string;
-  status: string;
-  notes: string | null;
+const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  scheduled:            { label: "Scheduled",          color: "bg-blue-100 text-blue-700 border-blue-200" },
+  confirmed:            { label: "Confirmed",           color: "bg-green-100 text-green-700 border-green-200" },
+  owner_confirmed:      { label: "You Confirmed ✓",     color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+  reschedule_requested: { label: "Reschedule Requested",color: "bg-amber-100 text-amber-700 border-amber-200" },
+  completed:            { label: "Completed",           color: "bg-slate-100 text-slate-600 border-slate-200" },
+  cancelled:            { label: "Cancelled",           color: "bg-red-100 text-red-600 border-red-200" },
+};
+
+function timeAgo(date: string): string {
+  const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
 }
 
-export default function VisitsPage() {
-  const { referrer } = useAppStore();
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  const [visits, setVisits] = useState<Visit[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    propertyId: 1, propertyName: "Sunrise PG Koramangala",
-    visitorName: "", visitorPhone: "", scheduledAt: "", notes: "",
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-IN", {
+    weekday: "short", day: "numeric", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
   });
+}
+
+export default function OwnerVisitsPage() {
+  const { ownerToken, isOwnerAuthenticated } = useOwnerStore();
+  const { toast } = useToast();
+
+  const [visits, setVisits] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [respondingId, setRespondingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [respondForm, setRespondForm] = useState<{
+    message: string; proposedAt: string;
+  }>({ message: "", proposedAt: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
+
   const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
-  useEffect(() => {
-    if (!referrer) { setLocation("/"); return; }
-    fetch(`${BASE}/api/visits/${referrer.id}`)
-      .then(r => r.json()).then(d => setVisits(Array.isArray(d) ? d : [])).finally(() => setLoading(false));
-  }, [referrer]);
-
-  const handleBook = async () => {
-    if (!referrer || !form.visitorName || !form.scheduledAt) return;
-    setSubmitting(true);
+  const fetchVisits = useCallback(async () => {
+    if (!isOwnerAuthenticated || !ownerToken) return;
+    setLoading(true);
     try {
-      const res = await fetch(`${BASE}/api/visits`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, referrerId: referrer.id }),
+      const res = await fetch(`${BASE}/api/v1/owner/visits`, {
+        headers: { Authorization: `Bearer ${ownerToken}` },
       });
       if (res.ok) {
-        const visit = await res.json();
-        setVisits(prev => [visit, ...prev]);
-        setShowForm(false);
-        toast({ title: "✅ Visit Scheduled!", description: `Visit booked for ${new Date(form.scheduledAt).toLocaleDateString()}` });
-        setForm({ propertyId: 1, propertyName: "Sunrise PG Koramangala", visitorName: "", visitorPhone: "", scheduledAt: "", notes: "" });
+        const json = await res.json();
+        setVisits(json.data || []);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [isOwnerAuthenticated, ownerToken]);
+
+  useEffect(() => { fetchVisits(); }, [fetchVisits]);
+
+  const handleRespond = async (visitId: string, response: "confirmed" | "reschedule_requested") => {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${BASE}/api/v1/owner/visits/${encodeURIComponent(visitId)}/respond`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ownerToken}`,
+        },
+        body: JSON.stringify({
+          response,
+          message: respondForm.message || undefined,
+          proposedAt: respondForm.proposedAt || undefined,
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setVisits(prev => prev.map(v =>
+          (v.id || v._id) === visitId ? { ...v, ...json.data } : v
+        ));
+        setRespondingId(null);
+        setRespondForm({ message: "", proposedAt: "" });
+        toast({
+          title: response === "confirmed" ? "✅ Visit Confirmed!" : "🔄 Reschedule Requested",
+          description: response === "confirmed"
+            ? "Admin has been notified that you are available."
+            : "Admin has been notified of your reschedule request.",
+        });
+      } else {
+        toast({ title: "Failed to respond", variant: "destructive" });
       }
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleCancel = async (visitId: number) => {
-    await fetch(`${BASE}/api/visits/${visitId}`, {
-      method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "CANCELLED" }),
-    });
-    setVisits(prev => prev.map(v => v.id === visitId ? { ...v, status: "CANCELLED" } : v));
-    toast({ title: "Visit cancelled" });
-  };
+  const now = new Date();
+  const upcoming = visits.filter(v => new Date(v.scheduledAt) >= now && !["cancelled", "completed"].includes(v.status));
+  const past = visits.filter(v => new Date(v.scheduledAt) < now || ["cancelled", "completed"].includes(v.status));
+  const displayed = tab === "upcoming" ? upcoming : past;
 
-  const statusColor = (s: string) => ({
-    SCHEDULED: "bg-blue-100 text-blue-700 border-blue-200",
-    CONFIRMED: "bg-green-100 text-green-700 border-green-200",
-    COMPLETED: "bg-slate-100 text-slate-600 border-slate-200",
-    CANCELLED: "bg-red-100 text-red-700 border-red-200",
-  }[s] || "bg-muted text-muted-foreground border-border");
-
-  const PROPERTIES = [
-    { id: 1, name: "Sunrise PG Koramangala", area: "Koramangala" },
-    { id: 2, name: "Green Valley PG HSR", area: "HSR Layout" },
-    { id: 3, name: "Tech Hub PG Marathahalli", area: "Marathahalli" },
-    { id: 5, name: "Student Corner BTM", area: "BTM Layout" },
-    { id: 7, name: "Cozy Nest Electronic City", area: "Electronic City" },
-    { id: 8, name: "Sky View PG Bellandur", area: "Bellandur" },
-  ];
-
-  if (!referrer) return null;
+  const canRespond = (v: any) =>
+    ["scheduled", "confirmed"].includes(v.status?.toLowerCase()) &&
+    new Date(v.scheduledAt) >= now;
 
   return (
     <Layout>
-      <PageHeader title="Site Visits" subtitle="Schedule and track property visits for your leads" />
-      <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-6">
+      <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-5">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-black font-display flex items-center gap-2">
-              <Calendar className="w-8 h-8 text-primary" /> Site Visits
+            <h1 className="text-2xl font-black font-display text-slate-900 flex items-center gap-2">
+              <Calendar className="w-6 h-6 text-primary" /> Visits
             </h1>
-            <p className="text-muted-foreground mt-1">Schedule PG site visits for your referrals</p>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Property visits scheduled by admin — confirm or reschedule
+            </p>
           </div>
-          <button onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors text-sm">
-            <Plus className="w-4 h-4" /> Book Visit
+          <button onClick={fetchVisits}
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+            <RefreshCw className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Book visit form */}
-        <AnimatePresence>
-          {showForm && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: "auto" }}
-              exit={{ opacity: 0, y: -10, height: 0 }}
-              className="bg-card border border-border rounded-2xl p-5 space-y-4 overflow-hidden"
-            >
-              <h3 className="font-bold text-foreground">📅 Schedule a Visit</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block">Select PG</label>
-                  <select
-                    className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-background focus:ring-2 focus:ring-primary/20 outline-none"
-                    value={form.propertyId}
-                    onChange={e => {
-                      const p = PROPERTIES.find(p => p.id === Number(e.target.value));
-                      setForm(f => ({ ...f, propertyId: Number(e.target.value), propertyName: p?.name || "" }));
-                    }}
-                  >
-                    {PROPERTIES.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block">Visitor Name</label>
-                  <input placeholder="Name of visitor" value={form.visitorName}
-                    onChange={e => setForm(f => ({ ...f, visitorName: e.target.value }))}
-                    className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-background focus:ring-2 focus:ring-primary/20 outline-none" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block">Phone</label>
-                  <input placeholder="10-digit number" value={form.visitorPhone}
-                    onChange={e => setForm(f => ({ ...f, visitorPhone: e.target.value }))}
-                    className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-background focus:ring-2 focus:ring-primary/20 outline-none" />
-                </div>
-                <div className="col-span-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block">Date & Time</label>
-                  <input type="datetime-local" value={form.scheduledAt}
-                    min={new Date().toISOString().slice(0, 16)}
-                    onChange={e => setForm(f => ({ ...f, scheduledAt: e.target.value }))}
-                    className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-background focus:ring-2 focus:ring-primary/20 outline-none" />
-                </div>
-                <div className="col-span-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block">Notes (optional)</label>
-                  <input placeholder="Any special requests..." value={form.notes}
-                    onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                    className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-background focus:ring-2 focus:ring-primary/20 outline-none" />
-                </div>
-              </div>
-              <button onClick={handleBook} disabled={!form.visitorName || !form.scheduledAt || submitting}
-                className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50">
-                {submitting ? "Booking..." : "📅 Confirm Visit"}
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Tabs */}
+        <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+          {(["upcoming", "past"] as const).map(t => (
+            <button key={t} onClick={() => setTab(t)}
+              className={cn(
+                "flex-1 py-2 text-sm font-bold rounded-lg capitalize transition-all",
+                tab === t ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              )}>
+              {t === "upcoming" ? `Upcoming (${upcoming.length})` : `Past (${past.length})`}
+            </button>
+          ))}
+        </div>
 
-        {/* Visits list */}
+        {/* List */}
         {loading ? (
-          <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-24 bg-muted rounded-2xl animate-pulse" />)}</div>
-        ) : visits.length === 0 ? (
-          <div className="text-center py-12 bg-card border border-border rounded-2xl">
-            <p className="text-5xl mb-4">🏠</p>
-            <p className="font-bold text-foreground">No visits scheduled</p>
-            <p className="text-sm text-muted-foreground mt-1">Book a PG site visit for your referrals</p>
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => <div key={i} className="h-36 bg-slate-100 rounded-2xl animate-pulse" />)}
+          </div>
+        ) : displayed.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-2xl border border-slate-100">
+            <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <p className="font-bold text-slate-600">
+              {tab === "upcoming" ? "No upcoming visits" : "No past visits"}
+            </p>
+            <p className="text-sm text-slate-400 mt-1">
+              {tab === "upcoming"
+                ? "Admin will schedule visits to your property — they'll appear here"
+                : "Completed and cancelled visits will appear here"}
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {visits.map((visit, i) => (
-              <motion.div key={visit.id}
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-                className="bg-card border border-border rounded-2xl p-4 space-y-3"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                      <Building2 className="w-5 h-5 text-primary" />
+            <AnimatePresence>
+              {displayed.map((visit, i) => {
+                const status = STATUS_CONFIG[visit.status?.toLowerCase()] || { label: visit.status, color: "bg-slate-100 text-slate-600 border-slate-200" };
+                const isExpanded = expandedId === (visit.id || visit._id);
+                const isResponding = respondingId === (visit.id || visit._id);
+                const visitId = visit.id || visit._id;
+
+                return (
+                  <motion.div key={visitId}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    className={cn(
+                      "bg-white rounded-2xl border overflow-hidden shadow-sm",
+                      canRespond(visit) && visit.status === "scheduled" ? "border-orange-200" : "border-slate-100"
+                    )}>
+
+                    {/* Admin-set indicator */}
+                    {visit.scheduledBy === "admin" && (
+                      <div className="bg-blue-50 border-b border-blue-100 px-4 py-2 flex items-center gap-2">
+                        <AlertCircle className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        <p className="text-xs font-bold text-blue-600">Scheduled by Admin · Your response needed</p>
+                      </div>
+                    )}
+
+                    <div className="p-4 space-y-3">
+                      {/* Top row: property + status */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                            {visit.type === "virtual" ? <Video className="w-5 h-5 text-primary" /> : <Building2 className="w-5 h-5 text-primary" />}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-black text-slate-900 leading-tight">
+                              {visit.property?.name || "Your Property"}
+                            </p>
+                            {visit.property?.area && (
+                              <p className="text-xs text-slate-500 mt-0.5">{visit.property.area}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={cn(
+                            "text-[11px] font-bold px-2 py-0.5 rounded-full border",
+                            visit.type === "virtual" ? "bg-indigo-100 text-indigo-700 border-indigo-200" : "bg-green-100 text-green-700 border-green-200"
+                          )}>
+                            {visit.type === "virtual" ? "🖥 Virtual" : "🏠 Physical"}
+                          </span>
+                          <span className={cn("text-[11px] font-bold px-2 py-0.5 rounded-full border", status.color)}>
+                            {status.label}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Room info if available */}
+                      {visit.room && (
+                        <div className="bg-slate-50 rounded-xl px-3 py-2 flex items-center gap-3 text-sm">
+                          <Home className="w-4 h-4 text-slate-400 shrink-0" />
+                          <span className="font-medium text-slate-700 capitalize">
+                            {visit.room.type} Room · {visit.room.bedsTotal} bed{visit.room.bedsTotal > 1 ? "s" : ""}
+                            {visit.room.currentPrice ? ` · ₹${visit.room.currentPrice.toLocaleString("en-IN")}/mo` : ""}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Prospect info */}
+                      <div className="flex flex-wrap gap-3">
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <User className="w-4 h-4 text-slate-400" />
+                          <span className="font-medium">{visit.customerName || "—"}</span>
+                        </div>
+                        {visit.customerPhone && (
+                          <a href={`tel:${visit.customerPhone}`}
+                            className="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
+                            <Phone className="w-4 h-4" />
+                            {visit.customerPhone}
+                          </a>
+                        )}
+                      </div>
+
+                      {/* Date */}
+                      <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 rounded-xl px-3 py-2">
+                        <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span className="font-medium">{formatDate(visit.scheduledAt)}</span>
+                      </div>
+
+                      {/* Notes from admin */}
+                      {visit.notes && (
+                        <div className="flex items-start gap-2 text-sm text-slate-500 italic bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
+                          <MessageSquare className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                          <span>{visit.notes}</span>
+                        </div>
+                      )}
+
+                      {/* Owner's previous response */}
+                      {visit.ownerMessage && (
+                        <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2 text-sm text-emerald-700">
+                          <span className="font-bold">Your message to admin: </span>{visit.ownerMessage}
+                          {visit.proposedAt && (
+                            <p className="text-xs mt-1 text-emerald-600">
+                              Proposed time: {formatDate(visit.proposedAt)}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Action buttons */}
+                      {canRespond(visit) && (
+                        <div className="pt-1">
+                          {!isResponding ? (
+                            <div className="flex gap-2">
+                              <button onClick={() => handleRespond(visitId, "confirmed")} disabled={submitting}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50">
+                                <CheckCircle2 className="w-4 h-4" />
+                                I'm Available
+                              </button>
+                              <button onClick={() => setRespondingId(visitId)}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-xl text-sm font-bold transition-colors">
+                                <RefreshCw className="w-4 h-4" />
+                                Request Reschedule
+                              </button>
+                            </div>
+                          ) : (
+                            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                              className="space-y-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                              <p className="text-sm font-bold text-slate-700">Request Reschedule</p>
+                              <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1 block">
+                                  Message to Admin (optional)
+                                </label>
+                                <textarea
+                                  value={respondForm.message}
+                                  onChange={e => setRespondForm(f => ({ ...f, message: e.target.value }))}
+                                  placeholder="e.g. I'm not available on Friday, please schedule after 5 PM..."
+                                  rows={2}
+                                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1 block">
+                                  Suggest New Date & Time (optional)
+                                </label>
+                                <input type="datetime-local"
+                                  value={respondForm.proposedAt}
+                                  min={new Date().toISOString().slice(0, 16)}
+                                  onChange={e => setRespondForm(f => ({ ...f, proposedAt: e.target.value }))}
+                                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                />
+                              </div>
+                              <div className="flex gap-2">
+                                <button onClick={() => handleRespond(visitId, "reschedule_requested")} disabled={submitting}
+                                  className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50">
+                                  {submitting ? "Sending…" : "Send Request"}
+                                </button>
+                                <button onClick={() => { setRespondingId(null); setRespondForm({ message: "", proposedAt: "" }); }}
+                                  className="px-4 py-2.5 text-sm text-slate-500 border border-slate-200 rounded-xl hover:bg-slate-100 font-medium">
+                                  Cancel
+                                </button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Scheduled-by info */}
+                      <p className="text-xs text-slate-400">
+                        {visit.scheduledBy === "admin" ? "Set by Admin" : "Self-scheduled"} · {timeAgo(visit.createdAt)}
+                      </p>
                     </div>
-                    <div>
-                      <p className="font-black text-foreground">{visit.propertyName}</p>
-                      <p className="text-sm text-muted-foreground">{visit.visitorName} · {visit.visitorPhone}</p>
-                    </div>
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full border font-bold ${statusColor(visit.status)}`}>
-                    {visit.status}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl px-3 py-2">
-                  <Clock className="w-4 h-4 shrink-0" />
-                  {new Date(visit.scheduledAt).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                </div>
-                {visit.notes && <p className="text-xs text-muted-foreground italic px-1">{visit.notes}</p>}
-                {visit.status === "SCHEDULED" && (
-                  <button onClick={() => handleCancel(visit.id)}
-                    className="text-xs text-red-600 hover:text-red-700 font-bold flex items-center gap-1">
-                    <XCircle className="w-3 h-3" /> Cancel visit
-                  </button>
-                )}
-              </motion.div>
-            ))}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         )}
       </div>

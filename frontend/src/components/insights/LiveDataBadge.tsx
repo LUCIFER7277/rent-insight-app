@@ -4,7 +4,7 @@ export function LiveDataBadge() {
   const [state, setState] = useState<{ ok: boolean; source: string; freshAt: number } | null>(null);
   useEffect(() => {
     let cancel = false;
-    const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
+    const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
     fetch(`${BASE}/api/public/insights/json`)
       .then((r) => r.json())
       .then((d) => { if (!cancel) setState({ ok: true, source: d.source, freshAt: d.freshAt }); })
@@ -12,7 +12,7 @@ export function LiveDataBadge() {
     return () => { cancel = true; };
   }, []);
   if (!state) return null;
-  const live = state.source.includes("bangalore.rent");
+  const live = state.source?.includes("bangalore.rent") || false;
   const ago = state.freshAt ? Math.max(0, Math.round((Date.now() - state.freshAt) / 1000 / 60)) : null;
   return (
     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border border-success/30 bg-success/5 text-success">

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { Link, useLocation } from "wouter";
 import { useAppStore, useOwnerStore } from "@/referral-app/lib/store";
-import { Home, PlusCircle, Trophy, User, LogOut, Building2, Users, Target, Bell, Calculator, MapPin, BarChart2, Flame, Zap, GitBranch, Activity, Share2, TrendingUp, Calendar, SwitchCamera } from "lucide-react";
+import { Home, PlusCircle, Trophy, User, LogOut, Building2, Users, Target, Bell, Calculator, MapPin, BarChart2, Flame, Zap, GitBranch, Activity, Share2, TrendingUp, Calendar, SwitchCamera, BedDouble, Package, IndianRupee } from "lucide-react";
 import { cn } from "@/referral-app/lib/utils";
 import { RoleSwitcher } from "./role-switcher";
 import { ActiveOwnerBar } from "./active-owner-bar";
@@ -10,7 +10,7 @@ import { useEffect } from "react";
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const { persona, logout } = useAppStore();
-  const { isOwnerAuthenticated, logoutOwner } = useOwnerStore();
+  const { isOwnerAuthenticated, logoutOwner, ownerToken, ownerUnreadCount, setOwnerUnreadCount } = useOwnerStore();
 
   const handleLogout = () => {
     if (isOwnerAuthenticated) {
@@ -25,7 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const isGuard = persona === "GUARD";
   const isStudent = persona === "STUDENT";
   const isEarner = persona === "EARNER";
-  const isOwnerPortal = location.startsWith("/owner");
+  const isOwnerPortal = location.startsWith("/owner") || (isOwnerAuthenticated && ["/notifications", "/visits", "/me"].some(p => location.startsWith(p)));
   const isAdminPortal = location.startsWith("/admin");
   const isManager = persona === "PG_MANAGER";
   const isBroker = persona === "BROKER";
@@ -42,11 +42,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
     "bg-indigo-50 text-indigo-950 min-h-screen": isCorporate,
   });
 
+  const OWNER_ALLOWED_PATHS = ["/owner", "/notifications", "/visits", "/me"];
+
   useEffect(() => {
-    if (isOwnerAuthenticated && !location.startsWith("/owner") && !isAdminPortal) {
+    if (isOwnerAuthenticated && !OWNER_ALLOWED_PATHS.some(p => location.startsWith(p)) && !isAdminPortal) {
       setLocation("/owner/dashboard");
     }
   }, [isOwnerAuthenticated, location, setLocation, isAdminPortal]);
+
+  // Fetch unread notification count for owners and keep store in sync
+  useEffect(() => {
+    if (!isOwnerAuthenticated || !ownerToken) return;
+    const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
+    fetch(`${BASE}/api/v1/owner/notifications`, {
+      headers: { Authorization: `Bearer ${ownerToken}` },
+    })
+      .then(r => r.ok ? r.json() : { data: [] })
+      .then(json => {
+        const unread = (json.data || []).filter((n: any) => !n.isRead).length;
+        setOwnerUnreadCount(unread);
+      })
+      .catch(() => {});
+  }, [isOwnerAuthenticated, ownerToken, location]);
 
   if (!persona && !isOwnerAuthenticated && !isAdminPortal) {
     return (
@@ -60,6 +77,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const navItems = isOwnerPortal ? [
     { href: "/owner/dashboard", icon: BarChart2, label: "Dashboard" },
     { href: "/owner/properties", icon: Building2, label: "Properties" },
+    { href: "/owner/properties/new", icon: PlusCircle, label: "Add Property" },
+    { href: "/owner/rooms", icon: BedDouble, label: "Update Rooms" },
+    { href: "/owner/inventory", icon: Package, label: "Inventory" },
+    { href: "/owner/pricing", icon: IndianRupee, label: "Pricing" },
+    { href: "/visits", icon: Calendar, label: "Visits" },
+    { href: "/notifications", icon: Bell, label: "Notifications" },
+    { href: "/me", icon: User, label: "Profile" },
   ] : isAdminPortal ? [
     { href: "/admin/dashboard", icon: BarChart2, label: "Dashboard" },
     { href: "/admin/owners", icon: User, label: "Owners" },
@@ -133,10 +157,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {navItems.map(item => (
-            <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-              active={location === item.href || (location.startsWith(item.href + "/") && item.href !== "/pg")} isGuard={isGuard || isBroker} />
-          ))}
+          {navItems.map(item => {
+            const isExactMatch = location === item.href;
+            const isPrefixMatch = location.startsWith(item.href + "/") && item.href !== "/pg";
+            const hasMoreSpecificMatch = navItems.some(other => other.href !== item.href && location.startsWith(other.href) && other.href.length > item.href.length);
+            const active = isExactMatch || (isPrefixMatch && !hasMoreSpecificMatch);
+            const badge = (isOwnerAuthenticated && item.href === "/notifications" && ownerUnreadCount > 0)
+              ? ownerUnreadCount : undefined;
+            return (
+              <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
+                active={active} isGuard={isGuard || isBroker} badge={badge} />
+            );
+          })}
           {!isOwnerPortal && (
             <>
               <div className="pt-4 pb-2 px-4">
@@ -220,15 +252,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function NavItem({ href, icon: Icon, label, active, isGuard }: { href: string; icon: any; label: string; active: boolean; isGuard: boolean }) {
+function NavItem({ href, icon: Icon, label, active, isGuard, badge }: { href: string; icon: any; label: string; active: boolean; isGuard: boolean; badge?: number }) {
   return (
     <Link href={href} className={cn(
-      "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+      "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative",
       active ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-muted text-muted-foreground",
       isGuard && "text-base font-bold"
     )}>
       <Icon className="w-4 h-4" />
       {label}
+      {badge !== undefined && badge > 0 && (
+        <span className="ml-auto text-[10px] font-black bg-red-500 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
     </Link>
   );
 }

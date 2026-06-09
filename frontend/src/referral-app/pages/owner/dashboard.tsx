@@ -155,20 +155,20 @@ export default function OwnerDashboardPage() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => setLocation("/pg")}
+          <button onClick={() => setLocation("/owner/properties/new")}
             className="flex items-center gap-3 p-4 bg-white border border-slate-100 rounded-2xl hover:border-orange-200 transition-all text-left">
-            <Home className="w-5 h-5 text-primary" />
+            <Plus className="w-5 h-5 text-primary" />
             <div>
-              <p className="font-bold text-slate-800 text-sm">Browse PGs</p>
-              <p className="text-xs text-slate-500">Route overflow leads</p>
+              <p className="font-bold text-slate-800 text-sm">Add Property</p>
+              <p className="text-xs text-slate-500">List a new PG</p>
             </div>
           </button>
-          <button onClick={() => setLocation("/refer")}
+          <button onClick={() => setLocation("/owner/rooms")}
             className="flex items-center gap-3 p-4 bg-white border border-slate-100 rounded-2xl hover:border-orange-200 transition-all text-left">
-            <Users className="w-5 h-5 text-primary" />
+            <Building2 className="w-5 h-5 text-primary" />
             <div>
-              <p className="font-bold text-slate-800 text-sm">Submit Lead</p>
-              <p className="text-xs text-slate-500">Refer to another PG</p>
+              <p className="font-bold text-slate-800 text-sm">Update Rooms</p>
+              <p className="text-xs text-slate-500">Manage room availability</p>
             </div>
           </button>
         </div>

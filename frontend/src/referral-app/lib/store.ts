@@ -58,8 +58,10 @@ interface OwnerState {
   ownerToken: string | null;
   ownerUser: any | null;
   isOwnerAuthenticated: boolean;
+  ownerUnreadCount: number;
   setOwnerAuth: (token: string, user: any) => void;
   logoutOwner: () => void;
+  setOwnerUnreadCount: (count: number) => void;
 }
 
 export const useOwnerStore = create<OwnerState>()(
@@ -68,8 +70,10 @@ export const useOwnerStore = create<OwnerState>()(
       ownerToken: null,
       ownerUser: null,
       isOwnerAuthenticated: false,
+      ownerUnreadCount: 0,
       setOwnerAuth: (token, user) => set({ ownerToken: token, ownerUser: user, isOwnerAuthenticated: true }),
-      logoutOwner: () => set({ ownerToken: null, ownerUser: null, isOwnerAuthenticated: false }),
+      logoutOwner: () => set({ ownerToken: null, ownerUser: null, isOwnerAuthenticated: false, ownerUnreadCount: 0 }),
+      setOwnerUnreadCount: (count) => set({ ownerUnreadCount: count }),
     }),
     {
       name: "gharpayy_owner",

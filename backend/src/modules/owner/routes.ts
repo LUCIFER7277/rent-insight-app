@@ -956,35 +956,83 @@ export function registerOwnerRoutes(app: FastifyInstance) {
   app.get("/api/v1/owner/visits", { preHandler: [requireAuth] }, async (req, reply) => {
     const userId = req.user!.sub;
     const visitsCol = col<any>("visits");
-    const list = await visitsCol.find({ ownerId: userId }).toArray();
-    return reply.send({ success: true, data: list });
+    const roomsCol = col<any>("rooms");
+    const propertiesCol = col<any>("properties");
+
+    const list = await visitsCol.find({ ownerId: userId }).sort({ scheduledAt: 1 }).toArray();
+
+    // Enrich with room + property data
+    const enriched = await Promise.all(list.map(async (v: any) => {
+      let room = null;
+      let property = null;
+      if (v.roomId) {
+        room = await roomsCol.findOne({ $or: [{ _id: v.roomId }, { customId: v.roomId }] });
+      }
+      if (room?.propertyId) {
+        property = await propertiesCol.findOne({ $or: [{ _id: room.propertyId }, { customId: room.propertyId }] });
+      } else if (v.propertyId) {
+        property = await propertiesCol.findOne({ $or: [{ _id: v.propertyId }, { customId: v.propertyId }] });
+      }
+      return {
+        ...v,
+        id: v.id || v._id,
+        room: room ? { id: room.customId || room._id, type: room.type, bedsTotal: room.bedsTotal, currentPrice: room.currentPrice } : null,
+        property: property ? { id: property.customId || property._id, name: property.name, area: property.area, address: property.address } : null,
+      };
+    }));
+
+    return reply.send({ success: true, data: enriched });
   });
 
-  app.post("/api/v1/owner/visits", { preHandler: [requireAuth] }, async (req, reply) => {
-    const userId = req.user!.sub;
-    const body = req.body as any;
-    const { roomId, customerName, customerPhone, scheduledAt, type, notes } = body;
-
+  // Owner responds to a visit: confirm availability or request reschedule + optional message to admin
+  app.post("/api/v1/owner/visits/:visitId/respond", { preHandler: [requireAuth] }, async (req, reply) => {
+    const { visitId } = req.params as { visitId: string };
+    const { response, message, proposedAt } = req.body as {
+      response: "confirmed" | "reschedule_requested";
+      message?: string;
+      proposedAt?: string;
+    };
     const visitsCol = col<any>("visits");
-    const visitId = `v-${crypto.randomUUID().slice(0, 8)}`;
+    const notifCol = col<any>("notifications");
+
+    const visit = await visitsCol.findOne({ $or: [{ id: visitId }, { _id: visitId }] });
+    if (!visit) return reply.code(404).send({ success: false, message: "Visit not found" });
+
+    const newStatus = response === "confirmed" ? "owner_confirmed" : "reschedule_requested";
     const now = new Date().toISOString();
 
-    const visit = {
-      _id: visitId,
-      id: visitId,
-      ownerId: userId,
-      roomId,
-      customerName,
-      customerPhone,
-      scheduledAt,
-      type: type || "physical",
-      status: "scheduled",
-      notes,
-      createdAt: now,
-    };
+    const updated = await visitsCol.findOneAndUpdate(
+      { $or: [{ id: visitId }, { _id: visitId }] },
+      {
+        $set: {
+          status: newStatus,
+          ownerResponse: response,
+          ownerMessage: message || null,
+          proposedAt: proposedAt || null,
+          ownerRespondedAt: now,
+          updatedAt: now,
+        }
+      },
+      { returnDocument: "after" }
+    );
 
-    await visitsCol.insertOne(visit);
-    return reply.send({ success: true, data: visit });
+    // Notify admin
+    await notifCol.insertOne({
+      _id: crypto.randomUUID(),
+      tenantId: req.user!.tenantId,
+      recipient: "ADMIN",
+      type: response === "confirmed" ? "OWNER_VISIT_CONFIRMED" : "OWNER_RESCHEDULE_REQUESTED",
+      title: response === "confirmed" ? "Owner Confirmed Visit" : "Owner Requested Reschedule",
+      message: message
+        ? `Owner responded: "${message}"${proposedAt ? ` Proposed new time: ${new Date(proposedAt).toLocaleString("en-IN")}` : ""}`
+        : (response === "confirmed" ? "Owner is available and confirmed the visit." : "Owner requested a reschedule."),
+      visitId,
+      ownerId: req.user!.sub,
+      isRead: false,
+      createdAt: now,
+    });
+
+    return reply.send({ success: true, data: updated });
   });
 
   app.put("/api/v1/owner/visits/:visitId/status", { preHandler: [requireAuth] }, async (req, reply) => {
@@ -1030,6 +1078,259 @@ export function registerOwnerRoutes(app: FastifyInstance) {
       type,
       note,
       by: by || "Owner",
+      at: now,
+    };
+
+    await actionsCol.insertOne(action);
+    return reply.send({ success: true, data: action });
+  });
+
+  // ---------- OWNER NOTIFICATIONS ----------
+  app.get("/api/v1/owner/notifications", { preHandler: [requireAuth] }, async (req, reply) => {
+    const userId = req.user!.sub;
+    const now = new Date();
+
+    const propertiesCol = col<any>("properties");
+    const roomsCol = col<any>("rooms");
+    const roomStatusesCol = col<any>("room_statuses");
+    const visitsCol = col<any>("visits");
+    const actionsCol = col<any>("room_actions");
+
+    // Load persisted read state for this owner
+    const readDocs = await col<any>("owner_notif_reads").find({ ownerId: userId }).toArray();
+    const readIds = new Set(readDocs.map((d: any) => d.notifId));
+
+    // Fetch owner's properties and rooms
+    const ownerProps = await propertiesCol.find({ ownerId: userId }).toArray();
+    const propIds = ownerProps.map((p: any) => p.customId || p._id);
+    const rooms = await roomsCol.find({ propertyId: { $in: propIds } }).toArray();
+    const roomIds = rooms.map((r: any) => r.customId || r._id);
+    const statuses = await roomStatusesCol.find({ roomId: { $in: roomIds } }).toArray();
+
+    const notifications: any[] = [];
+
+    // 1. Scheduled visits (from admin or owner)
+    const upcoming = await visitsCol.find({
+      ownerId: userId,
+      status: { $in: ["scheduled", "confirmed"] },
+      scheduledAt: { $gte: now.toISOString() },
+    }).sort({ scheduledAt: 1 }).limit(10).toArray();
+
+    for (const v of upcoming) {
+      const room = rooms.find((r: any) => (r.customId || r._id) === v.roomId);
+      const prop = room ? ownerProps.find((p: any) => (p.customId || p._id) === room.propertyId) : null;
+      notifications.push({
+        id: `visit-${v._id}`,
+        type: "VISIT_SCHEDULED",
+        category: "visit",
+        title: `${v.type === "virtual" ? "🖥 Virtual" : "🏠 Physical"} Tour Scheduled`,
+        message: `${v.customerName || "A prospect"} is visiting ${prop?.name || "your property"}${room ? ` (${room.type} room)` : ""} on ${new Date(v.scheduledAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}.`,
+        tourType: v.type || "physical",
+        propertyName: prop?.name,
+        scheduledAt: v.scheduledAt,
+        isRead: v.notifRead || false,
+        createdAt: v.createdAt,
+        priority: "high",
+      });
+    }
+
+    // 2. Price alerts from admin actions
+    const priceActions = await actionsCol.find({
+      ownerId: userId,
+      type: { $in: ["PRICE_INCREASE_SUGGESTED", "PRICE_DECREASE_SUGGESTED", "price_alert"] },
+    }).sort({ at: -1 }).limit(10).toArray();
+
+    for (const a of priceActions) {
+      const room = rooms.find((r: any) => (r.customId || r._id) === a.roomId);
+      const prop = room ? ownerProps.find((p: any) => (p.customId || p._id) === room.propertyId) : null;
+      const isUp = a.type === "PRICE_INCREASE_SUGGESTED" || (a.note && a.note.toLowerCase().includes("high demand"));
+      notifications.push({
+        id: `price-${a._id}`,
+        type: isUp ? "PRICE_UP_ALERT" : "PRICE_DOWN_ALERT",
+        category: "pricing",
+        title: isUp ? "📈 High Demand — Price Up" : "📉 Low Demand — Price Review",
+        message: a.note || (isUp
+          ? `Your ${room?.type || ""} room in ${prop?.name || "your property"} is in high demand. Consider increasing the rent.`
+          : `Your ${room?.type || ""} room in ${prop?.name || "your property"} needs a pricing review to attract tenants.`),
+        propertyName: prop?.name,
+        isRead: a.notifRead || false,
+        createdAt: a.at,
+        priority: "medium",
+      });
+    }
+
+    // 3. Occupancy alert — always shown, read state from DB
+    const totalRooms = statuses.length;
+    const occupiedRooms = statuses.filter((s: any) => s.kind === "occupied").length;
+    const occupancyPct = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
+    if (totalRooms > 0) {
+      const isLow = occupancyPct < 60;
+      const occId = `occupancy-${userId}-${now.toDateString()}`;
+      notifications.push({
+        id: occId,
+        type: "OCCUPANCY_ALERT",
+        category: "stats",
+        title: isLow ? "⚠️ Low Occupancy Alert" : "✅ Occupancy Update",
+        message: `Your current occupancy is ${occupancyPct}% (${occupiedRooms}/${totalRooms} rooms). ${isLow ? "Consider reviewing your pricing or listing visibility." : "Great job keeping rooms filled!"}`,
+        occupancyPct,
+        isRead: readIds.has(occId),
+        createdAt: new Date(new Date().setHours(8, 0, 0, 0)).toISOString(),
+        priority: isLow ? "high" : "low",
+      });
+    }
+
+    // 4. Inventory: locked/unsellable rooms
+    const locked = statuses.filter((s: any) => s.lockedUnsellable);
+    if (locked.length > 0) {
+      const revenueAtRisk = locked.reduce((sum: number, s: any) => sum + (s.expectedRent || s.rentConfirmed || 0), 0);
+      notifications.push({
+        id: `locked-${userId}-${now.toDateString()}`,
+        type: "ROOMS_LOCKED",
+        category: "inventory",
+        title: "🔒 Rooms Locked / Unsellable",
+        message: `${locked.length} room(s) are marked as locked/unsellable. Revenue at risk: ₹${revenueAtRisk.toLocaleString("en-IN")}/mo. Unlock them to start receiving leads.`,
+        lockedCount: locked.length,
+        revenueAtRisk,
+        isRead: false,
+        createdAt: new Date(new Date().setHours(8, 5, 0, 0)).toISOString(),
+        priority: "high",
+      });
+    }
+
+    // 5. Sellable (vacant) rooms summary — read state from DB
+    const sellable = statuses.filter((s: any) => s.kind === "vacant" && !s.lockedUnsellable);
+    if (sellable.length > 0) {
+      const sellId = `sellable-${userId}-${now.toDateString()}`;
+      notifications.push({
+        id: sellId,
+        type: "SELLABLE_ROOMS",
+        category: "inventory",
+        title: "🟢 Sellable Rooms Today",
+        message: `You have ${sellable.length} vacant, sellable room(s) available for new tenants across ${ownerProps.length} properties.`,
+        sellableCount: sellable.length,
+        isRead: readIds.has(sellId),
+        createdAt: new Date(new Date().setHours(8, 10, 0, 0)).toISOString(),
+        priority: "low",
+      });
+    }
+
+    // 6. Revenue at risk from vacating rooms
+    const vacating = statuses.filter((s: any) => s.kind === "vacating");
+    if (vacating.length > 0) {
+      const revenueAtRisk = vacating.reduce((sum: number, s: any) => sum + (s.rentConfirmed || s.actualRent || 0), 0);
+      notifications.push({
+        id: `vacating-${userId}-${now.toDateString()}`,
+        type: "REVENUE_AT_RISK",
+        category: "revenue",
+        title: "💸 Revenue at Risk",
+        message: `${vacating.length} tenant(s) vacating soon. ₹${revenueAtRisk.toLocaleString("en-IN")}/mo at risk. Start prospecting now!`,
+        vacatingCount: vacating.length,
+        revenueAtRisk,
+        isRead: false,
+        createdAt: new Date(new Date().setHours(8, 15, 0, 0)).toISOString(),
+        priority: "high",
+      });
+    }
+
+    // 7. Daily streak — based on real verifiedToday field, read state from DB
+    const todayStr = now.toDateString();
+    const verifiedToday = statuses.some((s: any) => s.verifiedToday && new Date(s.updatedAt).toDateString() === todayStr);
+    const streakId = `streak-${userId}-${todayStr}`;
+    notifications.push({
+      id: streakId,
+      type: "STREAK",
+      category: "streak",
+      title: verifiedToday ? "🔥 Streak Active!" : "❄️ Keep Your Streak Going",
+      message: verifiedToday
+        ? "You've verified your rooms today. Keep it up for uninterrupted lead flow!"
+        : "You haven't verified your room statuses today. Update them to maintain your streak and get leads.",
+      isRead: readIds.has(streakId),
+      createdAt: new Date(new Date().setHours(9, 0, 0, 0)).toISOString(),
+      priority: verifiedToday ? "low" : "medium",
+    });
+
+    // Sort: unread first, then by priority, then by date desc
+    const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    notifications.sort((a, b) => {
+      if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
+      if (priorityOrder[a.priority] !== priorityOrder[b.priority])
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return reply.send({ success: true, data: notifications });
+  });
+
+  // Mark owner notification read
+  app.patch("/api/v1/owner/notifications/:id/read", { preHandler: [requireAuth] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    // Persist read state per notification id per owner
+    await col<any>("owner_notif_reads").updateOne(
+      { ownerId: req.user!.sub, notifId: id },
+      { $set: { ownerId: req.user!.sub, notifId: id, readAt: new Date().toISOString() } },
+      { upsert: true }
+    );
+    return reply.send({ success: true });
+  });
+
+  // Mark ALL owner notifications read
+  app.post("/api/v1/owner/notifications/mark-all-read", { preHandler: [requireAuth] }, async (req, reply) => {
+    const userId = req.user!.sub;
+    const visitsCol = col<any>("visits");
+    const actionsCol = col<any>("room_actions");
+    await visitsCol.updateMany({ ownerId: userId }, { $set: { notifRead: true } });
+    await actionsCol.updateMany({ ownerId: userId }, { $set: { notifRead: true } });
+    return reply.send({ success: true });
+  });
+
+  // Admin: schedule a visit for an owner's property
+  app.post("/api/admin/visits", async (req, reply) => {
+    const body = req.body as any;
+    const { ownerId, roomId, customerName, customerPhone, scheduledAt, type, notes } = body;
+
+    const visitsCol = col<any>("visits");
+    const visitId = `v-adm-${crypto.randomUUID().slice(0, 8)}`;
+    const now = new Date().toISOString();
+
+    const visit = {
+      _id: visitId,
+      id: visitId,
+      ownerId,
+      roomId,
+      customerName,
+      customerPhone,
+      scheduledAt,
+      type: type || "physical",
+      status: "scheduled",
+      scheduledBy: "admin",
+      notes,
+      notifRead: false,
+      createdAt: now,
+    };
+
+    await visitsCol.insertOne(visit);
+    return reply.send({ success: true, data: visit });
+  });
+
+  // Admin: push a price alert action for an owner's room
+  app.post("/api/admin/price-alert", async (req, reply) => {
+    const body = req.body as any;
+    const { ownerId, roomId, direction, note } = body;
+    const type = direction === "up" ? "PRICE_INCREASE_SUGGESTED" : "PRICE_DECREASE_SUGGESTED";
+
+    const actionsCol = col<any>("room_actions");
+    const actionId = `a-adm-${crypto.randomUUID().slice(0, 8)}`;
+    const now = new Date().toISOString();
+
+    const action = {
+      _id: actionId,
+      id: actionId,
+      ownerId,
+      roomId,
+      type,
+      note: note || (direction === "up" ? "High demand — consider increasing price." : "Low demand — consider reducing price."),
+      by: "Admin",
+      notifRead: false,
       at: now,
     };
 
