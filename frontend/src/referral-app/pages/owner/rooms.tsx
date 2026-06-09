@@ -162,7 +162,7 @@ export default function OwnerRoomsPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [visits, setVisits] = useState<Visit[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
-  const [tab, setTab] = useState<"inventory" | "visits" | "ledger">("inventory");
+  const [tab, setTab] = useState<"inventory" | "visits" | "ledger" | "pricing">("inventory");
   const [draft, setDraft] = useState<Partial<Room>>({ status: "vacant", beds: 1, actualRent: 0, expectedRent: 0, roomNumber: "" });
   const [showAdd, setShowAdd] = useState(false);
 
@@ -427,12 +427,12 @@ export default function OwnerRoomsPage() {
 
         {/* Tabs */}
         <div className="flex items-center gap-1 border-b border-slate-200">
-          {(["inventory", "visits", "ledger"] as const).map((t) => (
+          {(["inventory", "visits", "ledger", "pricing"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={`px-4 py-2.5 text-sm font-bold capitalize border-b-2 transition-colors ${tab === t ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
-              {t === "ledger" ? "Effort Ledger" : t === "inventory" ? "Rooms" : t === "visits" ? "Visits" : t}
+              {t === "ledger" ? "Effort Ledger" : t === "inventory" ? "Rooms" : t === "visits" ? "Visits" : t === "pricing" ? "Pricing" : t}
             </button>
           ))}
         </div>
@@ -478,6 +478,7 @@ export default function OwnerRoomsPage() {
         )}
         {tab === "visits" && <VisitsTab visits={visits} rooms={rooms} onMark={markVisit} />}
         {tab === "ledger" && <LedgerTab actions={actions} rooms={rooms} />}
+        {tab === "pricing" && <PricingTab rooms={rooms} onApply={(rid, rent) => { update(rid, { expectedRent: rent }); logAction(rid, "rent_changed", `→ ${fmtINR(rent)}`); }} />}
       </div>
     </Layout>
   );
