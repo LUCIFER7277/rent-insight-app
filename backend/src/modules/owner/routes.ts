@@ -25,6 +25,22 @@ const RoomStatusFields = z.object({
   actualRent: z.number().optional(),
   expectedRent: z.number().optional(),
   lowestAcceptableRent: z.number().optional(),
+  // Readiness fields
+  commercial: z.string().optional(),
+  operational: z.string().optional(),
+  turnaround: z.string().optional(),
+  reason: z.string().optional(),
+  availableFrom: z.string().optional(),
+  // USP fields
+  uspSize: z.string().optional(),
+  uspVentilation: z.string().optional(),
+  uspWindow: z.string().optional(),
+  uspSunlight: z.string().optional(),
+  uspView: z.string().optional(),
+  uspWashroom: z.string().optional(),
+  uspNoise: z.string().optional(),
+  uspPosition: z.string().optional(),
+  uspFurniture: z.string().optional(),
 });
 
 // Seed function to ensure mock owners and their properties exist in the DB
@@ -944,7 +960,7 @@ export function registerOwnerRoutes(app: FastifyInstance) {
   app.post("/api/v1/owner/rooms", { preHandler: [requireAuth] }, async (req, reply) => {
     const userId = req.user!.sub;
     const body = req.body as any;
-    const { propertyId, type, bedsTotal, price, floorPrice, actualRent, expectedRent, lowestAcceptableRent } = body;
+    const { propertyId, type, bedsTotal, price, floorPrice, actualRent, expectedRent, lowestAcceptableRent, floorNumber } = body;
 
     if (!propertyId || !type || !bedsTotal || !price) {
       return reply.code(400).send({ success: false, message: "Missing required fields" });
@@ -964,6 +980,7 @@ export function registerOwnerRoutes(app: FastifyInstance) {
       bedsTotal: Number(bedsTotal),
       bedsOccupied: 0,
       currentPrice: Number(price),
+      floorNumber: floorNumber ? Number(floorNumber) : 1,
     });
 
     await roomStatusesCol.insertOne({
@@ -971,6 +988,9 @@ export function registerOwnerRoutes(app: FastifyInstance) {
       propertyId,
       ownerId: userId,
       kind: "vacant",
+      commercialStatus: "vacant",
+      operationalStatus: "ready",
+      turnaroundStatus: "none",
       rentConfirmed: Number(price),
       floorPrice: floorPrice ? Number(floorPrice) : Math.round(Number(price) * 0.9),
       actualRent: actualRent ? Number(actualRent) : Number(price),
@@ -994,12 +1014,68 @@ export function registerOwnerRoutes(app: FastifyInstance) {
       recipient: "ADMIN",
       type: "ADMIN_PROPERTY_UPDATED",
       title: "New Room Added",
-      message: `Owner ${req.user!.fullName || 'Unknown'} added a new room (ID: ${roomId}) to ${propName}.`,
+      message: `Owner ${req.user!.fullName || 'Unknown'} added a new room (ID: ${roomId}, Floor ${floorNumber || 1}) to ${propName}.`,
       isRead: false,
       createdAt: now,
     });
 
     return reply.send({ success: true, data: { roomId } });
+  });
+
+  // ---------- UPDATE ROOM DETAILS (commercial/operational/turnaround status) ----------
+  app.put("/api/v1/owner/rooms/:roomId/details", { preHandler: [requireAuth] }, async (req, reply) => {
+    const { roomId } = req.params as { roomId: string };
+    const body = req.body as any;
+    const { commercialStatus, operationalStatus, turnaroundStatus, usp, availability } = body;
+    const roomStatusesCol = col<any>("room_statuses");
+    const now = new Date().toISOString();
+
+    const validCommercial = ["occupied", "vacant", "quoted", "booked", "reserved", "on_notice"];
+    const validOperational = ["ready", "cleaning", "maintenance", "blocked"];
+    const validTurnaround = ["none", "checkout", "checkin"];
+
+    const update: Record<string, any> = { updatedAt: now };
+    if (commercialStatus && validCommercial.includes(commercialStatus)) {
+      update.commercialStatus = commercialStatus;
+      // Sync legacy kind field
+      if (commercialStatus === "occupied") update.kind = "occupied";
+      else if (commercialStatus === "on_notice") update.kind = "vacating";
+      else if (commercialStatus === "vacant") update.kind = "vacant";
+      else if (["quoted", "booked", "reserved"].includes(commercialStatus)) update.kind = "vacant";
+    }
+    if (operationalStatus && validOperational.includes(operationalStatus)) {
+      update.operationalStatus = operationalStatus;
+      if (operationalStatus === "blocked" || operationalStatus === "maintenance") {
+        update.lockedUnsellable = true;
+        update.kind = "blocked";
+      } else {
+        update.lockedUnsellable = false;
+      }
+    }
+    if (turnaroundStatus && validTurnaround.includes(turnaroundStatus)) {
+      update.turnaroundStatus = turnaroundStatus;
+    }
+    
+    // Save USP and Availability objects
+    if (usp) {
+      update.usp = usp; // e.g. { size, ventilation, window, sunlight, view, washroom, noise, position, furniture }
+    }
+    if (availability) {
+      update.availability = availability; // e.g. { reason, availableFrom }
+    }
+
+    const existing = await roomStatusesCol.findOne({ roomId });
+    if (!existing) {
+      return reply.code(404).send({ success: false, message: "Room status not found" });
+    }
+
+    const r = await roomStatusesCol.findOneAndUpdate(
+      { roomId },
+      { $set: update },
+      { returnDocument: "after" }
+    );
+
+    return reply.send({ success: true, data: r });
   });
 
   // ---------- DELETE ROOM ----------

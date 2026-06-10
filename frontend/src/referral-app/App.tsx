@@ -37,6 +37,7 @@ import OwnerPropertiesPage from "@/referral-app/pages/owner/properties";
 import OwnerAddPropertyPage from "@/referral-app/pages/owner/add-property";
 import OwnerRoomsPage from "@/referral-app/pages/owner/rooms";
 import OwnerAllRoomsPage from "@/referral-app/pages/owner/all-rooms";
+import OwnerRoomDetailPage from "@/referral-app/pages/owner/room-detail";
 import OwnerInventoryPage from "@/referral-app/pages/owner/inventory";
 import OwnerPricingPage from "@/referral-app/pages/owner/pricing";
 import OwnerLogin from "@/referral-app/pages/manager/login";
@@ -119,6 +120,7 @@ function Router() {
       <Route path="/owner/properties" component={OwnerPropertiesPage} />
       <Route path="/owner/properties/new" component={OwnerAddPropertyPage} />
       <Route path="/owner/properties/:id/rooms" component={OwnerRoomsPage} />
+      <Route path="/owner/properties/:id/rooms/:roomId" component={OwnerRoomDetailPage} />
       <Route path="/owner/rooms" component={OwnerAllRoomsPage} />
       <Route path="/owner/inventory" component={OwnerInventoryPage} />
       <Route path="/owner/pricing" component={OwnerPricingPage} />

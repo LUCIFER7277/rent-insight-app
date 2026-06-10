@@ -1067,6 +1067,28 @@ export function useVerifyRealOwnerRoom() {
   });
 }
 
+export function useUpdateRoomDetails() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ token, roomId, data }: { token: string; roomId: string; data: { commercialStatus?: string; operationalStatus?: string; turnaroundStatus?: string } }) => {
+      const res = await fetch(`${getBackendUrl()}/api/v1/owner/rooms/${roomId}/details`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || "Failed to update room details");
+      return json.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["owner", "rooms"] });
+    }
+  });
+}
+
 export function useGetOwnerVisits(token: string | null) {
   return useQuery({
     queryKey: ["owner", "visits"],

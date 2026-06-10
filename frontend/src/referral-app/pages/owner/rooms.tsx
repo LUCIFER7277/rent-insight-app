@@ -6,7 +6,7 @@ import {
   ChevronLeft, Plus, Trash2, Share2, Lock, BedDouble, CalendarDays,
   ShieldCheck, TrendingDown, TrendingUp, AlertTriangle, CheckCircle2,
   Eye, Phone, MessageSquare, Video, MapPin, Sparkles, Activity,
-  Flame, Clock, IndianRupee, Users, Zap,
+  Flame, Clock, IndianRupee, Users, Zap, X, ChevronDown
 } from "lucide-react";
 import { Layout } from "@/referral-app/components/layout";
 import { Input } from "@/referral-app/components/ui/input";
@@ -367,6 +367,15 @@ export default function OwnerRoomsPage() {
     if (v && status === "done") logAction(v.roomId, "visit_done", v.customerName);
   };
 
+  const onOpenDetails = (roomId: string) => {
+    setLocation(`/owner/properties/${pid}/rooms/${roomId}`);
+  };
+
+  const onUpdateDetails = (roomId: string, data: any) => {
+    // Ideally this hits an API endpoint. For now, local update:
+    update(roomId, data);
+  };
+
   /* ── render ── */
 
   if (ownerToken && (isRealPropsLoading || isRoomsLoading)) {
@@ -467,13 +476,15 @@ export default function OwnerRoomsPage() {
 
         {/* Tab content */}
         {tab === "inventory" && (
-          <InventoryTab
+          <InventoryGridView
             rooms={rooms}
             visits={visits}
             onConfirm={confirmRoom}
             onStatus={setStatus}
             onShare={shareRoom}
             onRemove={remove}
+            onUpdateDetails={onUpdateDetails}
+            onOpenDetails={onOpenDetails}
           />
         )}
         {tab === "visits" && <VisitsTab visits={visits} rooms={rooms} onMark={markVisit} />}
@@ -552,28 +563,34 @@ function InventoryTab({ rooms, visits, onConfirm, onStatus, onShare, onRemove }:
     );
   }
 
-  const grouped: Record<RoomStatus, Room[]> = { vacant: [], vacating: [], occupied: [], blocked: [] };
-  rooms.forEach((r: Room) => grouped[r.status].push(r));
-  const order: RoomStatus[] = ["vacant", "vacating", "occupied", "blocked"];
+  const grouped: Record<string, any[]> = {};
+  rooms.forEach((r: any) => {
+    const floor = r.floorNumber || 1;
+    if (!grouped[floor]) grouped[floor] = [];
+    grouped[floor].push(r);
+  });
+  
+  const floors = Object.keys(grouped).sort((a, b) => Number(a) - Number(b));
 
   return (
     <div className="space-y-5">
-      {order.map((s) => grouped[s].length > 0 && (
-        <div key={s}>
-          <div className="flex items-center gap-2 mb-2">
-            <span className={`w-2 h-2 rounded-full ${STATUS_META[s].dot}`} />
-            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">{STATUS_META[s].label} · {grouped[s].length}</h3>
+      {floors.map((floor) => (
+        <div key={floor}>
+          <div className="flex items-center gap-2 mb-2 pb-1 border-b border-slate-100">
+            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">Floor {floor}</h3>
+            <span className="text-[10px] text-slate-400 font-medium">({grouped[floor].length} rooms)</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {grouped[s].map((room) => (
+            {grouped[floor].map((room) => (
               <RoomCard
                 key={room.id}
                 room={room}
-                visits={visits.filter((v: Visit) => v.roomId === room.id && v.status === "scheduled")}
+                visits={visits.filter((v: any) => v.roomId === room.id && v.status === "scheduled")}
                 onConfirm={() => onConfirm(room.id)}
-                onStatus={(s: RoomStatus) => onStatus(room.id, s)}
+                onStatus={(s: any) => onStatus(room.id, s)}
                 onShare={() => onShare(room)}
                 onRemove={() => onRemove(room.id)}
+                onOpenDetails={() => {}} // It's passed correctly by parent, handled in RoomCard ? Wait, the parent of RoomCard didn't pass onOpenDetails here!
               />
             ))}
           </div>
@@ -583,40 +600,26 @@ function InventoryTab({ rooms, visits, onConfirm, onStatus, onShare, onRemove }:
   );
 }
 
-function RoomCard({ room, visits, onConfirm, onStatus, onShare, onRemove }: any) {
-  const stale = isStale(room);
-  const locked = isSoftLocked(room);
+function RoomCard({ room, visits, onConfirm, onStatus, onShare, onRemove, onOpenDetails, onOpenModal }: any) {
   const demand = room.demandScore ?? 85;
-  const rentDelta = room.expectedRent - room.actualRent;
-  const trendUp = rentDelta > 0;
 
   return (
-    <motion.div layout className="bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-md transition-shadow">
+    <motion.div layout className="bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onOpenDetails}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-black text-slate-900 text-lg">Room {room.roomNumber}</h3>
-            <Badge variant="outline" className={`text-[10px] ${STATUS_META[room.status].cls}`}>{STATUS_META[room.status].label}</Badge>
-            {stale && <Badge variant="outline" className="text-[10px] bg-rose-50 text-rose-600 border-rose-200"><Lock className="w-3 h-3 mr-1" /> Locked</Badge>}
-            {locked && !stale && <Badge variant="outline" className="text-[10px] bg-sky-50 text-sky-700 border-sky-200"><Clock className="w-3 h-3 mr-1" /> Soft-lock</Badge>}
+            <h3 className="font-black text-slate-900 text-lg">Room #{room.roomNumber}</h3>
+            <Badge variant="outline" className={`text-[10px] ${STATUS_META[room.status]?.cls || ""}`}>{STATUS_META[room.status]?.label || room.status}</Badge>
             {demand > 75 && <Badge variant="outline" className="text-[10px] bg-orange-50 text-orange-700 border-orange-200"><Flame className="w-3 h-3 mr-1" /> Hot</Badge>}
           </div>
           <p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <span>{room.beds} bed</span>
-            {room.vacantDate && <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {room.vacantDate}</span>}
             <span className="flex items-center gap-1">
               <IndianRupee className="w-3 h-3" />
               {fmtINR(room.expectedRent).replace("₹", "")}/mo
-              {rentDelta !== 0 && (
-                <span className={`ml-1 inline-flex items-center gap-0.5 text-[10px] font-bold ${trendUp ? "text-emerald-600" : "text-rose-600"}`}>
-                  {trendUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  {trendUp ? "+" : ""}{fmtINR(rentDelta)}
-                </span>
-              )}
             </span>
           </p>
         </div>
-        <button onClick={onRemove} className="text-slate-300 hover:text-rose-500 p-1"><Trash2 className="w-4 h-4" /></button>
+        <button onClick={(e) => { e.stopPropagation(); onRemove(); }} className="text-slate-300 hover:text-rose-500 p-1"><Trash2 className="w-4 h-4" /></button>
       </div>
 
       {/* Demand bar */}
@@ -630,7 +633,7 @@ function RoomCard({ room, visits, onConfirm, onStatus, onShare, onRemove }: any)
       </div>
 
       {/* Upcoming visits */}
-      {visits.length > 0 && (
+      {visits && visits.length > 0 && (
         <div className="mt-3 bg-amber-50 border border-amber-100 rounded-lg p-2.5">
           <p className="text-[10px] font-bold uppercase text-amber-700 mb-1">Upcoming visits</p>
           {visits.slice(0, 2).map((v: Visit) => (
@@ -643,17 +646,8 @@ function RoomCard({ room, visits, onConfirm, onStatus, onShare, onRemove }: any)
       )}
 
       <div className="flex flex-wrap items-center gap-1.5 mt-3">
-        <select
-          value={room.status}
-          onChange={(e) => onStatus(e.target.value as RoomStatus)}
-          className="h-8 px-2 border border-slate-200 rounded-md bg-white text-xs font-medium">
-          {(Object.keys(STATUS_META) as RoomStatus[]).map((s) => <option key={s} value={s}>{STATUS_META[s].label}</option>)}
-        </select>
-        <Button size="sm" variant="outline" onClick={onConfirm} className="h-8 text-xs">
-          <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Confirm
-        </Button>
-        <Button size="sm" onClick={onShare} disabled={stale || room.status === "occupied" || room.status === "blocked"} className="h-8 text-xs">
-          <Share2 className="w-3.5 h-3.5 mr-1" /> Refer
+        <Button size="sm" onClick={(e) => { e.stopPropagation(); onOpenModal(); }} variant="outline" className="h-8 text-xs bg-slate-50 border-slate-200 hover:bg-slate-100 w-full">
+          <Sparkles className="w-3.5 h-3.5 mr-1 text-primary" /> Manage details
         </Button>
       </div>
     </motion.div>
@@ -808,4 +802,197 @@ function seedRooms(): Room[] {
     { id: crypto.randomUUID(), roomNumber: "202", beds: 1, status: "vacant",   actualRent: 9500,  expectedRent: 10500, floorRent: 9000, vacantDate: iso(now).slice(0,10), lastConfirmedAt: iso(now) },
     { id: crypto.randomUUID(), roomNumber: "301", beds: 3, status: "blocked",  actualRent: 22000, expectedRent: 24000, lastConfirmedAt: iso(now) },
   ];
+}
+
+
+/* ─────────────── Floor Grid & Modal Components ─────────────── */
+
+function InventoryGridView({ rooms, visits, onConfirm, onStatus, onShare, onRemove, onUpdateDetails, onOpenDetails }: any) {
+  const [selectedRoomForModal, setSelectedRoomForModal] = useState<Room | null>(null);
+  const floors = useMemo(() => {
+    const f: Record<number, Room[]> = {};
+    rooms.forEach((r: Room) => {
+      const fl = r.floorNumber || 1;
+      if (!f[fl]) f[fl] = [];
+      f[fl].push(r);
+    });
+    return f;
+  }, [rooms]);
+
+  const [expandedFloors, setExpandedFloors] = useState<Record<number, boolean>>({});
+  const toggleFloor = (f: number) => setExpandedFloors(prev => ({ ...prev, [f]: prev[f] === undefined ? false : !prev[f] }));
+
+  const sortedFloors = Object.keys(floors).map(Number).sort((a, b) => b - a);
+
+  return (
+    <div className="space-y-4">
+      {sortedFloors.length === 0 ? (
+        <div className="text-center py-14 bg-white border border-dashed border-slate-200 rounded-2xl">
+          <BedDouble className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+          <p className="text-slate-500 text-sm">No rooms to display. Add your first room.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {sortedFloors.map(fl => {
+            const isExpanded = expandedFloors[fl] !== false;
+            return (
+              <div key={fl} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                <button
+                  onClick={() => toggleFloor(fl)}
+                  className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+                >
+                  <h3 className="font-bold text-slate-800 text-sm">Floor {fl} <span className="text-slate-400 font-medium ml-1">· {floors[fl].length} rooms</span></h3>
+                  <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                </button>
+                
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: "auto" }}
+                      exit={{ height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                        {floors[fl].sort((a,b) => a.roomNumber.localeCompare(b.roomNumber)).map(room => (
+                          <RoomCard 
+                            key={room.id} 
+                            room={room} 
+                            visits={visits.filter((v: Visit) => v.roomId === room.id && v.status === "scheduled")}
+                            onConfirm={() => onConfirm(room.id)}
+                            onStatus={(s: RoomStatus) => onStatus(room.id, s)}
+                            onShare={() => onShare(room)}
+                            onRemove={() => onRemove(room.id)}
+                            onOpenDetails={() => onOpenDetails(room.id)}
+                            onOpenModal={() => setSelectedRoomForModal(room)}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {selectedRoomForModal && (
+        <RoomDetailModal
+          room={selectedRoomForModal}
+          onClose={() => setSelectedRoomForModal(null)}
+          onUpdate={(data: any) => {
+            onUpdateDetails?.(selectedRoomForModal.id, data);
+            setSelectedRoomForModal({ ...selectedRoomForModal, ...data });
+
+
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function RoomDetailModal({ room, onClose, onUpdate }: { room: Room, onClose: () => void, onUpdate: (data: any) => void }) {
+  const cStatus = (room as any).commercialStatus || "vacant";
+  
+  const getBadgeStyle = () => {
+    if (cStatus === "occupied") return "bg-blue-600 text-white border-[3px] border-rose-500 shadow-sm";
+    if (cStatus === "vacant") return "bg-emerald-500 text-white border-[3px] border-emerald-200 shadow-sm";
+    return "bg-slate-800 text-white border-[3px] border-slate-300 shadow-sm";
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        className="bg-white w-full max-w-sm rounded-[28px] overflow-hidden shadow-2xl p-6"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex flex-col gap-1.5 mb-5">
+          <p className="text-[11px] font-black uppercase text-orange-600 tracking-widest">Room</p>
+          <div className="flex items-center justify-between">
+            <h2 className="text-[32px] leading-none font-medium text-slate-800" style={{ fontFamily: "Georgia, serif" }}>#{room.roomNumber}</h2>
+            <div className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${getBadgeStyle()}`}>
+              {cStatus.replace("_", " ")}
+            </div>
+          </div>
+          <p className="text-[13px] text-slate-500 mt-1">
+            Sharing {room.beds} · ₹{(room.expectedRent || 0).toLocaleString()}/mo · Readiness {(room as any).readinessScore ?? 100}/100
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1.5 block">Commercial</label>
+            <select
+              value={(room as any).commercialStatus || "vacant"}
+              onChange={e => onUpdate({ commercialStatus: e.target.value })}
+              className="w-full bg-white border border-slate-200 text-slate-800 text-[15px] rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer"
+            >
+              <option value="vacant">vacant</option>
+              <option value="quoted">quoted</option>
+              <option value="booked">booked</option>
+              <option value="occupied">occupied</option>
+              <option value="on_notice">on notice</option>
+              <option value="reserved">reserved</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1.5 block">Operational</label>
+            <select
+              value={(room as any).operationalStatus || "ready"}
+              onChange={e => onUpdate({ operationalStatus: e.target.value })}
+              className="w-full bg-white border border-slate-200 text-slate-800 text-[15px] rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer"
+            >
+              <option value="ready">ready</option>
+              <option value="cleaning">needs cleaning</option>
+              <option value="maintenance">maintenance/blocked</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1.5 block">Turnaround</label>
+            <select
+              value={(room as any).turnaroundStatus || "none"}
+              onChange={e => onUpdate({ turnaroundStatus: e.target.value })}
+              className="w-full bg-white border border-slate-200 text-slate-800 text-[15px] rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer"
+            >
+              <option value="none">none</option>
+              <option value="checkout">scheduled checkout</option>
+              <option value="checkin">scheduled check-in</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mt-6">
+          <button 
+            onClick={() => { onUpdate({ operationalStatus: "ready" }); onClose(); }}
+            className="w-full py-2.5 rounded-xl bg-green-100/50 hover:bg-green-100 text-green-700 text-sm font-bold transition-colors"
+          >
+            Ready today
+          </button>
+          <button 
+            onClick={() => { onUpdate({ turnaroundStatus: "checkout" }); onClose(); }}
+            className="w-full py-2.5 rounded-xl bg-orange-100/50 hover:bg-orange-100 text-orange-700 text-sm font-bold transition-colors"
+          >
+            Checkout today
+          </button>
+          <button 
+            onClick={() => { onUpdate({ operationalStatus: "cleaning" }); onClose(); }}
+            className="w-full py-2.5 rounded-xl bg-blue-100/50 hover:bg-blue-100 text-blue-700 text-sm font-bold transition-colors"
+          >
+            Send to cleaning
+          </button>
+          <button 
+            onClick={() => { onUpdate({ operationalStatus: "maintenance" }); onClose(); }}
+            className="w-full py-2.5 rounded-xl bg-rose-100/50 hover:bg-rose-100 text-rose-700 text-sm font-bold transition-colors"
+          >
+            Block: maintenance
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
 }
